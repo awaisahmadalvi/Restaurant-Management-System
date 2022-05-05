@@ -1,11 +1,15 @@
 ---> To Run Frontend
 
-npm install
 cd client
+
+npm install
+
 npm run serve
 
 ---> To Run Backend
 
-npm install
 cd server
+
+npm install
+
 npm run dev
