@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const ratelistSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
     name: {
         type: String,
         required: true
@@ -24,6 +20,11 @@ const ratelistSchema = new mongoose.Schema({
     is_active: {
         type: Boolean,
         required: true
+    },
+    create_date: {
+        type: Date,
+        required: true,
+        default: Date.now
     },
 });
 

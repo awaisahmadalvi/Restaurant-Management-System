@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "31c31541-31f9-45e3-b7e4-2aaae9496f6d",
+		"name": "RMS Dishes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET Dish",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dishes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dishes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Dish id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dishes/6273fb28374744fd6f846d52",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dishes",
+						"6273fb28374744fd6f846d52"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST Dish",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Arabic\",\r\n  \"genre_id\": \"6273f832831231e61ab73016\",\r\n  \"desc\": \"Arabic Traditional Food\",\r\n  \"is_active\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/dishes?Content-Type=application/json",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dishes"
+					],
+					"query": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DEL Dish",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/dishes/6273fb28374744fd6f846d52",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dishes",
+						"6273fb28374744fd6f846d52"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH Dish",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Arabic Tortila\",\r\n  \"genre_id\": \"6273f832831231e61ab73016\",\r\n  \"desc\": \"Arabic Traditional Shawarma\",\r\n  \"is_active\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/dishes/6273fbbb374744fd6f846d5c?Content-Type=application/json ",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"dishes",
+						"6273fbbb374744fd6f846d5c"
+					],
+					"query": [
+						{
+							"key": "Content-Type",
+							"value": "application/json "
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

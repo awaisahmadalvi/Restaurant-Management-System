@@ -18,13 +18,13 @@ db.once('open', () => console.log('Connected to database!'));
 const router = require('./router/characters-router');
 server.use('/characters', router);
 
-// Dishes router link
-const dishesRouter = require('./router/dishes-router');
-server.use('/dishes', dishesRouter);
-
 // Genre router link
 const genreRouter = require('./router/genre-router');
 server.use('/genre', genreRouter);
+
+// Dishes router link
+const dishesRouter = require('./router/dishes-router');
+server.use('/dishes', dishesRouter);
 
 // Images router link
 const imagesRouter = require('./router/images-router');

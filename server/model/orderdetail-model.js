@@ -1,15 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderdetailSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
     table_id: {
-        type: String,
-        required: true
-    },
-    datetime: {
         type: String,
         required: true
     },
@@ -24,6 +16,11 @@ const orderdetailSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true
+    },
+    create_date: {
+        type: Date,
+        required: true,
+        default: Date.now
     },
 });
 

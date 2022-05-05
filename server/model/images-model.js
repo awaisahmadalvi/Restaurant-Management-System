@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const imagesSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
     dish_id: {
         type: String,
         required: true
@@ -12,6 +8,11 @@ const imagesSchema = new mongoose.Schema({
     image_data: {
         type: String,
         required: true
+    },
+    create_date: {
+        type: Date,
+        required: true,
+        default: Date.now
     },
 });
 

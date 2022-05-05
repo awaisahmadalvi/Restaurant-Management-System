@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "1fb35386-66c5-4fd3-b7f2-3ee01644a805",
+		"name": "RMS Order Detail",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET Order Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/orderdetail",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orderdetail"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Order Details id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/orderdetail/62741cb659155a2706ecbbd3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orderdetail",
+						"62741cb659155a2706ecbbd3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST Order Details",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"table_id\": \"62741b044154c10c9bc5d965\",\r\n  \"is_paid\": true,\r\n  \"total_bill\": \"4999\",\r\n  \"status\": \"Preparing\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orderdetail?Content-Type=application/json",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orderdetail"
+					],
+					"query": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DEL Order Details",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/orderdetail/62741cb659155a2706ecbbd3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orderdetail",
+						"62741cb659155a2706ecbbd3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH Order Details",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"table_id\": \"62741b044154c10c9bc5d965\",\r\n    \"is_paid\": false,\r\n    \"total_bill\": \"4999\",\r\n    \"status\": \"Preparing\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orderdetail/62741cb659155a2706ecbbd3?Content-Type=application/json ",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orderdetail",
+						"62741cb659155a2706ecbbd3"
+					],
+					"query": [
+						{
+							"key": "Content-Type",
+							"value": "application/json "
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

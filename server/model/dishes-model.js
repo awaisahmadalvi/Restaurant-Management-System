@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const dishesSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
     name: {
         type: String,
         required: true
@@ -19,7 +15,12 @@ const dishesSchema = new mongoose.Schema({
     },
     is_active: {
         type: Boolean,
-        required: true
+        default: false
+    },
+    create_date: {
+        type: Date,
+        required: true,
+        default: Date.now
     },
 });
 
