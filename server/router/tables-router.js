@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
 // Creating an table
 router.post('/', async (req, res) => {
     const table = new table_db({
+        number: req.body.number,
         order_id: req.body.order_id,
     });
     try {

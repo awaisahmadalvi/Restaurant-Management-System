@@ -4,7 +4,7 @@ const server = express();
 const cors = require('cors');
 
 // Server config
-server.use(express.json());
+server.use(express.json({ limit: '10mb' }));
 server.use(cors());
 
 // Mongoose connection and config

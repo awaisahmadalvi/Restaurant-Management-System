@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const orderlist_db = require('../model/orderlist-model');
+const orderlist_db = require('../model/orderdetail-model');
 
 // Getting all orderlist
 router.get('/', async (req, res) => {

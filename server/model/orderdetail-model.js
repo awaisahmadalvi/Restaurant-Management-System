@@ -1,19 +1,15 @@
 const mongoose = require('mongoose');
 
-const orderdetailSchema = new mongoose.Schema({
-    table_id: {
+const orderlistSchema = new mongoose.Schema({
+    order_id: {
         type: String,
         required: true
     },
-    is_paid: {
-        type: Boolean,
-        required: true
-    },
-    total_bill: {
+    rate_id: {
         type: String,
         required: true
     },
-    status: {
+    rate: {
         type: String,
         required: true
     },
@@ -24,4 +20,4 @@ const orderdetailSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('OrdersDetail', orderdetailSchema);
+module.exports = mongoose.model('OrderList', orderlistSchema);
