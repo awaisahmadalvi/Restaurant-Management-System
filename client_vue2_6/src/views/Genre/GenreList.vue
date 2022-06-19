@@ -6,6 +6,24 @@
       Add Table
     </v-btn> -->
       <GenreAddDialog />
+      <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-card>
+          <v-card-title class="text-h5"
+            >Are you sure you want to delete this genre & associated
+            dishes?</v-card-title
+          >
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="closeDelete"
+              >Cancel</v-btn
+            >
+            <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+              >OK</v-btn
+            >
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-simple-table class="ma-4" fixed-header>
         <thead>
           <tr>
@@ -83,6 +101,8 @@ export default {
   data() {
     return {
       genreList: [],
+      dialogDelete: false,
+      deleteid: -1,
     };
   },
   created() {
@@ -96,9 +116,23 @@ export default {
       });
     },
     deleteGenre(id) {
-      let uri = `http://localhost:3000/genre/${id}`;
+      this.deleteid = id;
+      this.dialogDelete = true;
+    },
+
+    deleteItemConfirm() {
+      let uri = `http://localhost:3000/genre/${this.deleteid}`;
       axios.delete(uri, this.genreList).then(() => {
         this.getGenreList();
+      });
+      this.closeDelete();
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.deleteid = -1;
+        this.editedIndex = -1;
       });
     },
     setActive(genreTemp, is_active) {

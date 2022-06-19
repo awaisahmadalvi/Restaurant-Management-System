@@ -8,6 +8,7 @@ router.get('/', async (req, res) => {
         const tabels = await table_db.find();
         res.json(tabels);
     } catch (err) {
+        console.log({ message: err.message });
         res.status(500).json({ message: err.message });
     }
 });
@@ -19,16 +20,21 @@ router.post('/', async (req, res) => {
         order_id: req.body.order_id,
     });
     try {
+        // const newTable = await table.save();
+
         const newTable = await table.save();
+
         res.status(201).json(newTable);
     } catch (err) {
+        console.error({ message: err.message });
         res.status(400).json({ message: err.message });
     }
 });
 
 // Getting one table
-router.get('/:id', getTables, (req, res) => {
-    res.json(res.tables)
+router.get('/:id', getTables, async (req, res) => {
+    if (res.tables)
+        res.json(res.tables);
 });
 
 // Updating one table
@@ -41,6 +47,7 @@ router.patch('/:id', getTables, async (req, res) => {
         const updatedTable = await res.tables.save()
         res.json(updatedTable)
     } catch {
+        console.log({ message: err.message });
         res.status(400).json({ message: err.message })
     }
 
@@ -52,6 +59,7 @@ router.delete('/:id', getTables, async (req, res) => {
         await res.tables.remove()
         res.json({ message: 'Deleted This table' })
     } catch (err) {
+        console.log({ message: err.message });
         res.status(500).json({ message: err.message })
     }
 })
@@ -66,6 +74,7 @@ async function getTables(req, res, next) {
             return res.status(404).json({ message: 'Cant find table' })
         }
     } catch (err) {
+        console.log({ message: err.message });
         return res.status(500).json({ message: err.message })
     }
 

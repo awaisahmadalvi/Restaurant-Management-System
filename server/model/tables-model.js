@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 
 const tablesSchema = new mongoose.Schema({
     number: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
     },
     order_id: {
         type: String,
@@ -16,4 +18,5 @@ const tablesSchema = new mongoose.Schema({
     },
 });
 
+tablesSchema.plugin(uniqueValidator)
 module.exports = mongoose.model('Tables', tablesSchema);

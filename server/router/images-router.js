@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const image_db = require('../model/images-model');
 
+
 // *******************************************
 // Image object CRUD
 // *******************************************
@@ -91,30 +92,5 @@ router.get('/dishid/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
-// Deleting All images associated with a dish id
-router.delete('/dishid/:id', removeImagesByDish, async (req, res) => {
-    try {
-        res.json({ message: 'Deleted This Image' })
-    } catch (err) {
-        res.status(500).json({ message: err.message })
-    }
-})
-
-// Middleware function for gettig images by dish id
-async function removeImagesByDish(req, res, next) {
-    try {
-        image = await image_db.remove({ dish_id: req.params.id })
-        if (image == null) {
-            return res.status(404).json({ message: 'Cant find Image' })
-        }
-    } catch (err) {
-        return res.status(500).json({ message: err.message })
-    }
-
-    res.image = image;
-    next()
-}
-
 
 module.exports = router;

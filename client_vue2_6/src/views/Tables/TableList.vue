@@ -9,6 +9,7 @@
       <v-spacer></v-spacer>
 
       <TableAddDialog />
+
       <v-simple-table class="ma-4" fixed-header>
         <thead>
           <tr>
