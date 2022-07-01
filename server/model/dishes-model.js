@@ -1,3 +1,4 @@
+const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
 
 const dishesSchema = new mongoose.Schema({
@@ -6,7 +7,7 @@ const dishesSchema = new mongoose.Schema({
         required: true
     },
     genre_id: {
-        type: String,
+        type: ObjectId,
         required: true
     },
     desc: {
@@ -17,11 +18,6 @@ const dishesSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    create_date: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Dishes', dishesSchema);

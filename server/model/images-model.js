@@ -1,19 +1,15 @@
+const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
 
 const imagesSchema = new mongoose.Schema({
     dish_id: {
-        type: String,
+        type: ObjectId,
         required: true
     },
     image_data: {
         type: String,
         required: true
     },
-    create_date: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Images', imagesSchema);

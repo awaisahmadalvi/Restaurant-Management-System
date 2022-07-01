@@ -20,7 +20,7 @@
             <v-card>
               <v-img
                 :src="image.image_data"
-                :lazy-src="require('../../../assets/logo.png')"
+                :lazy-src="require('../../assets/logo.png')"
                 aspect-ratio="1"
                 class="grey lighten-2"
               >
@@ -68,19 +68,20 @@ export default {
       showEditForm: false,
     };
   },
-  created() {
-    this.getImages();
-  },
+
   methods: {
     getImages() {
-      let uri = `http://localhost:3000/images/dishid/${this.dishId}`;
+      let uri =
+        `http://` +
+        window.location.hostname +
+        `:3000/images/dishid/${this.dishId}`;
       console.log(uri);
       axios.get(uri).then((response) => {
         this.images = response.data;
       });
     },
     deleteImage(id) {
-      let uri = `http://localhost:3000/images/${id}`;
+      let uri = `http://` + window.location.hostname + `:3000/images/${id}`;
       axios.delete(uri, this.images).then(() => {
         this.getImages();
       });
@@ -89,8 +90,17 @@ export default {
   mounted() {
     this.dishId = this.$route.params.id;
   },
-  updated() {
+  created() {
+    this.dishId = this.$route.params.id;
     this.getImages();
+  },
+  watch: {
+    // showDelDialog(val) {
+    //   val || this.closeDelete();
+    // },
+    showEditForm(val) {
+      val ? val : this.getImages();
+    },
   },
 };
 </script>

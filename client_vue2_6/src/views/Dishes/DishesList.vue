@@ -1,7 +1,11 @@
 <template>
   <v-sheet min-height="580px">
     <h1 class="blue-grey ma-2 text-center white--text">List of Dishes</h1>
-    <DishesEditDialog :dishEdit="editDish" v-model="showEditForm" />
+    <DishesEditDialog
+      :dishEdit="editDish"
+      :isEdit="isEdit"
+      v-model="showEditForm"
+    />
     <v-data-table
       :headers="headers"
       :items="dishesList"
@@ -12,8 +16,17 @@
           <v-toolbar-title>Dishes</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
-          <DishesAddDialog />
-          <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-btn
+            class="mx-1"
+            @click.stop="addDishFunc"
+            x-small
+            color="blue"
+            fab
+            dark
+          >
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+          <v-dialog v-model="showDelDialog" max-width="500px">
             <v-card>
               <v-card-title class="text-h5"
                 >Are you sure you want to delete this Dish with associated
@@ -47,9 +60,9 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                <v-icon>mdi-check</v-icon></v-btn
-              ></template
-            >
+                <v-icon>mdi-check</v-icon>
+              </v-btn>
+            </template>
             <span>Deactivate</span>
           </v-tooltip>
         </td>
@@ -90,6 +103,23 @@
             </v-btn>
           </template>
           <span>View Images</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="mx-1"
+              x-small
+              color="teal lighten-1"
+              fab
+              dark
+              v-bind="attrs"
+              v-on="on"
+              :to="`/ratelist/${item._id}`"
+            >
+              <v-icon>mdi-format-list-bulleted</v-icon>
+            </v-btn>
+          </template>
+          <span>View Rate List</span>
         </v-tooltip>
 
         <v-tooltip bottom>
@@ -136,14 +166,13 @@
 
 <script>
 import axios from "axios";
-import DishesAddDialog from "./DishesAddDialog.vue";
 import DishesEditDialog from "./DishesEditDialog.vue";
 
 export default {
   name: "DishesList",
-  components: { DishesAddDialog, DishesEditDialog },
+  components: { DishesEditDialog },
   data: () => ({
-    dialogDelete: false,
+    showDelDialog: false,
     deleteid: -1,
     selectedGenre: [],
     dishesList: [],
@@ -153,6 +182,7 @@ export default {
     showImagesForm: false,
     editDish: null,
     imageDishId: null,
+    isEdit: false,
 
     headers: [
       {
@@ -168,32 +198,21 @@ export default {
     ],
   }),
 
-  computed: {},
-
-  watch: {
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
-  },
-
-  created() {
-    this.getDishesList();
-  },
   methods: {
     getGenreList() {
-      let uri = "http://localhost:3000/genre"; //get only active
+      let uri = "http://" + window.location.hostname + ":3000/genre"; //get only active
       axios.get(uri).then((response) => {
         this.genreList = response.data;
       });
     },
     getDishesList() {
-      let uri = "http://localhost:3000/dishes";
+      let uri = "http://" + window.location.hostname + ":3000/dishes";
       axios.get(uri).then((response) => {
         this.dishesList = response.data;
       });
     },
     deleteDishes(id) {
-      let uri = `http://localhost:3000/dishes/${id}`;
+      let uri = `http://` + window.location.hostname + `:3000/dishes/${id}`;
       axios.delete(uri, this.dishesList).then(() => {
         this.getDishesList();
       });
@@ -203,7 +222,8 @@ export default {
       // console.log(genreTemp.is_active);
       dishTemp.is_active = is_active;
       // console.log(genreTemp.is_active);
-      let uri = `http://localhost:3000/dishes/${dishTemp._id}`;
+      let uri =
+        `http://` + window.location.hostname + `:3000/dishes/${dishTemp._id}`;
       axios.patch(uri, dishTemp, this.dishesList).then(() => {
         this.getDishesList();
       });
@@ -215,13 +235,20 @@ export default {
     },
 
     editDishFunc(dishTemp) {
+      this.isEdit = true;
       this.editDish = dishTemp;
+      this.showEditForm = true;
+    },
+
+    addDishFunc() {
+      this.isEdit = false;
+      this.editDish = null;
       this.showEditForm = true;
     },
 
     deleteItem(id) {
       this.deleteid = id;
-      this.dialogDelete = true;
+      this.showDelDialog = true;
     },
 
     deleteItemConfirm() {
@@ -230,15 +257,44 @@ export default {
     },
 
     closeDelete() {
-      this.dialogDelete = false;
+      this.showDelDialog = false;
       this.$nextTick(() => {
         this.deleteid = -1;
         this.editedIndex = -1;
       });
     },
   },
-  updated() {
+
+  computed: {},
+  created() {
     this.getDishesList();
+  },
+  watch: {
+    showDelDialog(val) {
+      val || this.closeDelete();
+    },
+    showEditForm(val) {
+      val ? val : this.getDishesList();
+    },
   },
 };
 </script>
+
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>

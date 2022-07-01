@@ -1,24 +1,25 @@
 <template>
   <v-sheet min-height="580px">
-    <h1 class="blue-grey ma-2 text-center white--text">List of Genre</h1>
-    <GenreEditDialog
-      :genreEdit="editGenre"
+    <h1 class="blue-grey ma-2 text-center white--text">List of Orders</h1>
+    <OrdersEditDialog
+      :orderEdit="editOrder"
       :isEdit="isEdit"
+      :orderId="orderId"
       v-model="showEditForm"
     />
     <v-data-table
       :headers="headers"
-      :items="genreList"
+      :items="ordersList"
       sort-by="name"
       class="elevation-12 ma-6"
       ><template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Genre</v-toolbar-title>
+          <v-toolbar-title>Orders</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-btn
             class="mx-1"
-            @click.stop="addGenreFunc"
+            @click.stop="addOrderFunc"
             x-small
             color="blue"
             fab
@@ -29,7 +30,7 @@
           <v-dialog v-model="showDelDialog" max-width="500px">
             <v-card>
               <v-card-title class="text-h5"
-                >Are you sure you want to delete this Genre with associated
+                >Are you sure you want to delete this Order with associated
                 data?</v-card-title
               >
               <v-card-actions>
@@ -46,52 +47,12 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.is_active`]="{ item }">
-        <td v-if="item.is_active">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                class="mx-1"
-                fab
-                dark
-                x-small
-                @click="setGenreActive(item, false)"
-                color="success"
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon>mdi-check</v-icon>
-              </v-btn>
-            </template>
-            <span>Deactivate</span>
-          </v-tooltip>
-        </td>
-        <td v-else>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                class="mx-1"
-                fab
-                dark
-                x-small
-                @click="setGenreActive(item, true)"
-                color="error"
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <span>Activate</span>
-          </v-tooltip>
-        </td>
-      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="mx-1"
-              @click.stop="editGenreFunc(item)"
+              @click.stop="editOrderFunc(item)"
               x-small
               color="grey accent-4"
               fab
@@ -102,7 +63,7 @@
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
           </template>
-          <span>Edit Genre</span>
+          <span>Edit Order</span>
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -119,11 +80,8 @@
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
-          <span>Delete Genre</span>
+          <span>Delete Order</span>
         </v-tooltip>
-
-        <!-- <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon> -->
       </template>
     </v-data-table>
   </v-sheet>
@@ -131,69 +89,62 @@
 
 <script>
 import axios from "axios";
-import GenreEditDialog from "./GenreEditDialog.vue";
+import OrdersEditDialog from "./OrderEditDialog.vue";
 
 export default {
-  name: "GenreList",
-  components: { GenreEditDialog },
+  name: "OrdersList",
+  components: { OrdersEditDialog },
   data: () => ({
     showDelDialog: false,
     deleteid: -1,
     selectedGenre: [],
-    genreList: [],
+    ordersList: [],
+    tableListinTable: [],
     editDialog: false,
     showEditForm: false,
-    showImagesForm: false,
-    editGenre: null,
-    imageGenreId: null,
+    editOrder: null,
     isEdit: false,
+    orderId: -1,
 
     headers: [
       {
-        text: "Genre Name",
+        text: "Table #",
         align: "start",
-        sortable: false,
-        value: "name",
+        // sortable: false,
+        value: "table[0].number",
       },
-      { text: "is active", value: "is_active" },
+      { text: "Completed?", value: "is_paid" },
+      { text: "Bill Amount", value: "total_bill" },
+      { text: "Status", value: "status" },
+      { text: "Time of Order", value: "createdAt" },
       { text: "Actions", value: "actions", sortable: false },
     ],
   }),
 
   methods: {
-    getGenreList() {
-      let uri = "http://" + window.location.hostname + ":3000/genre"; //get only active
-      axios.get(uri).then((response) => {
-        this.genreList = response.data;
+    getOrdersList() {
+      let uri = `http://` + window.location.hostname + `:3000/orderslist/`;
+      axios.get(uri).then((res) => {
+        this.ordersList = res.data;
+        // console.log(res);
       });
     },
-    deleteGenre(id) {
-      let uri = `http://` + window.location.hostname + `:3000/genre/${id}`;
-      axios.delete(uri, this.genreList).then(() => {
-        this.getGenreList();
-      });
-    },
-    setGenreActive(genreTemp, is_active) {
-      // console.log(genreTemp._id);
-      // console.log(genreTemp.is_active);
-      genreTemp.is_active = is_active;
-      // console.log(genreTemp.is_active);
-      let uri =
-        `http://` + window.location.hostname + `:3000/genre/${genreTemp._id}`;
-      axios.patch(uri, genreTemp, this.genreList).then(() => {
-        this.getGenreList();
+    deleteOrders(id) {
+      let uri = `http://` + window.location.hostname + `:3000/orderslist/${id}`;
+      axios.delete(uri, this.ordersList).then(() => {
+        this.getOrdersList();
       });
     },
 
-    editGenreFunc(genreTemp) {
+    editOrderFunc(orderTemp) {
       this.isEdit = true;
-      this.editGenre = genreTemp;
+      this.editOrder = orderTemp;
       this.showEditForm = true;
     },
 
-    addGenreFunc() {
+    addOrderFunc() {
       this.isEdit = false;
-      this.editGenre = null;
+      this.editOrder = null;
       this.showEditForm = true;
     },
 
@@ -203,7 +154,7 @@ export default {
     },
 
     deleteItemConfirm() {
-      this.deleteGenre(this.deleteid);
+      this.deleteOrders(this.deleteid);
       this.closeDelete();
     },
 
@@ -215,21 +166,25 @@ export default {
       });
     },
   },
-
-  computed: {},
   created() {
-    this.getGenreList();
+    this.getOrdersList();
   },
+  mounted() {
+    this.orderId = this.$route.params.id;
+  },
+  computed: {},
+
   watch: {
     showDelDialog(val) {
       val || this.closeDelete();
     },
     showEditForm(val) {
-      val ? val : this.getGenreList();
+      val ? val : this.getOrdersList();
     },
   },
 };
 </script>
+
 
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

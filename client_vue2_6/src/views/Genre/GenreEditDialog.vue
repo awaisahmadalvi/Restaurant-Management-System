@@ -3,7 +3,7 @@
     <v-dialog v-model="show" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{ addoredit }} Dish</span>
+          <span class="text-h5">{{ addoredit }} Genre</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="form" lazy-validation v-model="valid">
@@ -12,54 +12,28 @@
               :type="alertType"
               closable
               close-label="Close Alert"
-              >Dish {{ addoredit }}ed
+              >Genre {{ addoredit }}ed
               {{ alertType == "success" ? "Successfully" : "Failed" }}.</v-alert
             >
             <v-container>
               <v-row>
                 <v-col cols="12" md="12">
                   <v-text-field
-                    v-model="dish.name"
-                    :rules="dishNameRules"
+                    v-model="genre.name"
+                    :rules="genreNameRules"
                     :counter="20"
-                    label="Dish Title*"
+                    label="Genre Name*"
                     required
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-row>
-                <v-col cols="12" md="12">
-                  <v-textarea
-                    v-model="dish.desc"
-                    :rules="dishDescRules"
-                    :counter="200"
-                    rows="1"
-                    auto-grow
-                    label="Dish Description*"
-                    required
-                  ></v-textarea>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12">
-                  <v-combobox
-                    v-model="select"
-                    :items="genreList"
-                    item-value="_id"
-                    item-text="name"
-                    label="Genre"
-                    outlined
-                    :rules="genreRule"
-                  ></v-combobox>
-                </v-col>
-              </v-row>
               <v-btn
                 class="mr-4"
-                @click="isEdit ? editDish() : addDish()"
+                @click="isEdit ? editGenre() : addGenre()"
                 variant="outlined"
                 color="primary"
               >
-                {{ addoredit }} Dish
+                {{ addoredit }} Genre
               </v-btn>
             </v-container>
           </v-form>
@@ -76,7 +50,7 @@ import axios from "axios";
 export default {
   props: {
     value: Boolean,
-    dishEdit: Object,
+    genreEdit: Object,
     isEdit: Boolean,
   },
   data: () => ({
@@ -85,13 +59,13 @@ export default {
     isAlert: false,
     alertType: "success",
     addoredit: "Add",
-    // dish: {},
+    // genre: {},
     valid: false,
-    dishNameRules: [
+    genreNameRules: [
       (v) => !!v || "Name is required",
       (v) => (v && v.length <= 20) || "Name must be less than 20",
     ],
-    dishDescRules: [
+    genreDescRules: [
       (v) => !!v || "Description is required",
       (v) => (v && v.length <= 200) || "Description must be less than 200",
     ],
@@ -107,15 +81,15 @@ export default {
     resetValidation() {
       this.$refs.form.resetValidation();
     },
-    addDish() {
+    addGenre() {
       if (this.isEdit == false) {
         this.validate();
         if (this.valid) {
-          this.dish.is_active = true;
-          this.dish.genre_id = this.select._id;
-          let uri = "http://" + window.location.hostname + ":3000/dishes";
+          this.genre.is_active = true;
+          this.genre.genre_id = this.select._id;
+          let uri = "http://" + window.location.hostname + ":3000/genre";
           axios
-            .post(uri, this.dish)
+            .post(uri, this.genre)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
@@ -133,18 +107,18 @@ export default {
         }
       }
     },
-    editDish() {
+    editGenre() {
       if (this.isEdit == true) {
         this.validate();
         if (this.valid) {
-          this.dish.genre_id = this.select._id;
-          console.log(this.dish);
+          this.genre.genre_id = this.select._id;
+          console.log(this.genre);
           let uri =
             `http://` +
             window.location.hostname +
-            `:3000/dishes/${this.dish._id}`;
+            `:3000/genre/${this.genre._id}`;
           axios
-            .patch(uri, this.dish)
+            .patch(uri, this.genre)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
@@ -161,27 +135,6 @@ export default {
             });
         }
       }
-    },
-    getGenreList() {
-      let uri = "http://" + window.location.hostname + ":3000/genre";
-      axios.get(uri).then((response) => {
-        this.genreList = response.data;
-      });
-    },
-    setDishGenre(dishEdt) {
-      if (dishEdt == null) {
-        this.select = null;
-        return;
-      }
-      let uri =
-        `http://` +
-        window.location.hostname +
-        `:3000/genre/${dishEdt.genre_id}`;
-      axios.get(uri).then((response) => {
-        this.select = response.data.name;
-      });
-      // console.log(this.select);
-      // return;
     },
   },
   created() {
@@ -200,13 +153,12 @@ export default {
     },
   },
   computed: {
-    dish: {
+    genre: {
       get() {
-        this.setDishGenre(this.dishEdit);
-        return this.dishEdit == null ? {} : this.dishEdit;
+        return this.genreEdit == null ? {} : this.genreEdit;
       },
-      set(dishEdit) {
-        this.$emit("input", dishEdit);
+      set(genreEdit) {
+        this.$emit("input", genreEdit);
       },
     },
     show: {

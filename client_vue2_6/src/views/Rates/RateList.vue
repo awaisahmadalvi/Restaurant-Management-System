@@ -1,24 +1,25 @@
 <template>
   <v-sheet min-height="580px">
-    <h1 class="blue-grey ma-2 text-center white--text">List of Genre</h1>
-    <GenreEditDialog
-      :genreEdit="editGenre"
+    <h1 class="blue-grey ma-2 text-center white--text">List of Rates</h1>
+    <RatesEditDialog
+      :rateEdit="editRate"
       :isEdit="isEdit"
+      :dishId="dishId"
       v-model="showEditForm"
     />
     <v-data-table
       :headers="headers"
-      :items="genreList"
+      :items="ratesList"
       sort-by="name"
       class="elevation-12 ma-6"
       ><template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Genre</v-toolbar-title>
+          <v-toolbar-title>Rates</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-btn
             class="mx-1"
-            @click.stop="addGenreFunc"
+            @click.stop="addRateFunc"
             x-small
             color="blue"
             fab
@@ -29,7 +30,7 @@
           <v-dialog v-model="showDelDialog" max-width="500px">
             <v-card>
               <v-card-title class="text-h5"
-                >Are you sure you want to delete this Genre with associated
+                >Are you sure you want to delete this Rate with associated
                 data?</v-card-title
               >
               <v-card-actions>
@@ -55,7 +56,7 @@
                 fab
                 dark
                 x-small
-                @click="setGenreActive(item, false)"
+                @click="setRateActive(item, false)"
                 color="success"
                 v-bind="attrs"
                 v-on="on"
@@ -74,7 +75,7 @@
                 fab
                 dark
                 x-small
-                @click="setGenreActive(item, true)"
+                @click="setRateActive(item, true)"
                 color="error"
                 v-bind="attrs"
                 v-on="on"
@@ -91,7 +92,7 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="mx-1"
-              @click.stop="editGenreFunc(item)"
+              @click.stop="editRateFunc(item)"
               x-small
               color="grey accent-4"
               fab
@@ -102,7 +103,7 @@
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
           </template>
-          <span>Edit Genre</span>
+          <span>Edit Rate</span>
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -119,11 +120,8 @@
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
-          <span>Delete Genre</span>
+          <span>Delete Rate</span>
         </v-tooltip>
-
-        <!-- <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon> -->
       </template>
     </v-data-table>
   </v-sheet>
@@ -131,69 +129,74 @@
 
 <script>
 import axios from "axios";
-import GenreEditDialog from "./GenreEditDialog.vue";
+import RatesEditDialog from "./RateEditDialog.vue";
 
 export default {
-  name: "GenreList",
-  components: { GenreEditDialog },
+  name: "RatesList",
+
+  components: { RatesEditDialog },
   data: () => ({
     showDelDialog: false,
+    dishId: null,
     deleteid: -1,
     selectedGenre: [],
+    ratesList: [],
     genreList: [],
     editDialog: false,
     showEditForm: false,
     showImagesForm: false,
-    editGenre: null,
-    imageGenreId: null,
+    editRate: null,
+    imageRateId: null,
     isEdit: false,
 
     headers: [
       {
-        text: "Genre Name",
+        text: "Rate Title",
         align: "start",
         sortable: false,
         value: "name",
       },
+      { text: "Description", value: "desc" },
+      { text: "Price", value: "price" },
       { text: "is active", value: "is_active" },
       { text: "Actions", value: "actions", sortable: false },
     ],
   }),
 
   methods: {
-    getGenreList() {
-      let uri = "http://" + window.location.hostname + ":3000/genre"; //get only active
-      axios.get(uri).then((response) => {
-        this.genreList = response.data;
-      });
-    },
-    deleteGenre(id) {
-      let uri = `http://` + window.location.hostname + `:3000/genre/${id}`;
-      axios.delete(uri, this.genreList).then(() => {
-        this.getGenreList();
-      });
-    },
-    setGenreActive(genreTemp, is_active) {
-      // console.log(genreTemp._id);
-      // console.log(genreTemp.is_active);
-      genreTemp.is_active = is_active;
-      // console.log(genreTemp.is_active);
+    getRatesList() {
       let uri =
-        `http://` + window.location.hostname + `:3000/genre/${genreTemp._id}`;
-      axios.patch(uri, genreTemp, this.genreList).then(() => {
-        this.getGenreList();
+        `http://` +
+        window.location.hostname +
+        `:3000/ratelist/dishid/${this.dishId}`;
+      axios.get(uri).then((response) => {
+        this.ratesList = response.data;
+      });
+    },
+    deleteRates(id) {
+      let uri = `http://` + window.location.hostname + `:3000/ratelist/${id}`;
+      axios.delete(uri, this.ratesList).then(() => {
+        this.getRatesList();
+      });
+    },
+    setRateActive(rateTemp, is_active) {
+      rateTemp.is_active = is_active;
+      let uri =
+        `http://` + window.location.hostname + `:3000/ratelist/${rateTemp._id}`;
+      axios.patch(uri, rateTemp, this.ratesList).then(() => {
+        this.getRatesList();
       });
     },
 
-    editGenreFunc(genreTemp) {
+    editRateFunc(rateTemp) {
       this.isEdit = true;
-      this.editGenre = genreTemp;
+      this.editRate = rateTemp;
       this.showEditForm = true;
     },
 
-    addGenreFunc() {
+    addRateFunc() {
       this.isEdit = false;
-      this.editGenre = null;
+      this.editRate = null;
       this.showEditForm = true;
     },
 
@@ -203,7 +206,7 @@ export default {
     },
 
     deleteItemConfirm() {
-      this.deleteGenre(this.deleteid);
+      this.deleteRates(this.deleteid);
       this.closeDelete();
     },
 
@@ -217,19 +220,25 @@ export default {
   },
 
   computed: {},
+  mounted() {
+    this.dishId = this.$route.params.id;
+    // console.log("MOUNTED DISHID", this.dishId);
+  },
   created() {
-    this.getGenreList();
+    this.dishId = this.$route.params.id;
+    this.getRatesList();
   },
   watch: {
     showDelDialog(val) {
       val || this.closeDelete();
     },
     showEditForm(val) {
-      val ? val : this.getGenreList();
+      val ? val : this.getRatesList();
     },
   },
 };
 </script>
+
 
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

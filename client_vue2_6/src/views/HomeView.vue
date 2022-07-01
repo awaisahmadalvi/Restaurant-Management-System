@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     getImages() {
-      let uri = "http://localhost:3000/images";
+      let uri = "http://" + window.location.hostname + ":3000/images";
       axios.get(uri).then((response) => {
         this.images = response.data;
       });
@@ -82,7 +82,7 @@ export default {
       console.log(select._id);
     },
     getGenreList() {
-      let uri = "http://localhost:3000/genre";
+      let uri = "http://" + window.location.hostname + ":3000/genre";
       axios.get(uri).then((response) => {
         this.genreList = response.data;
       });

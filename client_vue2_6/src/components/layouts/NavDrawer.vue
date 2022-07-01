@@ -102,9 +102,13 @@ export default {
     items: [
       { icon: "mdi-chart-bar", text: "Dashboard", route: "/" },
       { icon: "mdi-table-chair", text: "Tables", route: "/tables" },
-      { icon: "mdi-food", text: "Genre", route: "/genre" },
-      { icon: "mdi-silverware-fork-knife", text: "Dishes", route: "/dishes" },
-      { icon: "mdi-camera", text: "Images", route: "/images" },
+      { icon: "mdi-file-tree", text: "Genre", route: "/genre" },
+      { icon: "mdi-food", text: "Dishes", route: "/dishes" },
+      {
+        icon: "mdi-clipboard-list",
+        text: "Orders",
+        route: "/orderlist",
+      },
       { icon: "mdi-silverware-fork-knife", text: "Test", route: "/test" },
       {
         icon: "mdi-silverware-fork-knife",

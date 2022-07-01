@@ -3,7 +3,7 @@
     <v-dialog v-model="show" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{ addoredit }} Dish</span>
+          <span class="text-h5">{{ addoredit }} Table</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="form" lazy-validation v-model="valid">
@@ -12,54 +12,32 @@
               :type="alertType"
               closable
               close-label="Close Alert"
-              >Dish {{ addoredit }}ed
+              >Table {{ addoredit }}ed
               {{ alertType == "success" ? "Successfully" : "Failed" }}.</v-alert
             >
             <v-container>
               <v-row>
                 <v-col cols="12" md="12">
                   <v-text-field
-                    v-model="dish.name"
-                    :rules="dishNameRules"
-                    :counter="20"
-                    label="Dish Title*"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12" md="12">
-                  <v-textarea
-                    v-model="dish.desc"
-                    :rules="dishDescRules"
-                    :counter="200"
+                    v-model="table.number"
                     rows="1"
-                    auto-grow
-                    label="Dish Description*"
+                    label="Table Number*"
                     required
-                  ></v-textarea>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12">
-                  <v-combobox
-                    v-model="select"
-                    :items="genreList"
-                    item-value="_id"
-                    item-text="name"
-                    label="Genre"
-                    outlined
-                    :rules="genreRule"
-                  ></v-combobox>
+                    type="number"
+                    :rules="tableNumberRules"
+                  ></v-text-field>
+                  <!-- 
+                    @change="$emit('update:tableEdit', $event.target.value)"
+                    :disabled="!isEdit" -->
                 </v-col>
               </v-row>
               <v-btn
                 class="mr-4"
-                @click="isEdit ? editDish() : addDish()"
+                @click="isEdit ? editTable() : addTable()"
                 variant="outlined"
                 color="primary"
               >
-                {{ addoredit }} Dish
+                {{ addoredit }} Table
               </v-btn>
             </v-container>
           </v-form>
@@ -76,26 +54,21 @@ import axios from "axios";
 export default {
   props: {
     value: Boolean,
-    dishEdit: Object,
+    tableId: String,
+    tableEdit: Object,
     isEdit: Boolean,
   },
   data: () => ({
-    genreList: [],
     select: [],
     isAlert: false,
     alertType: "success",
     addoredit: "Add",
-    // dish: {},
+    // table: {},
     valid: false,
-    dishNameRules: [
-      (v) => !!v || "Name is required",
-      (v) => (v && v.length <= 20) || "Name must be less than 20",
+    tablePriceRules: [
+      (v) => !!v || "Number is required",
+      (v) => (v && v >= 0) || "Number must be Greater than 0",
     ],
-    dishDescRules: [
-      (v) => !!v || "Description is required",
-      (v) => (v && v.length <= 200) || "Description must be less than 200",
-    ],
-    genreRule: [(v) => !!v || "Genre is required"],
   }),
   methods: {
     validate() {
@@ -107,15 +80,14 @@ export default {
     resetValidation() {
       this.$refs.form.resetValidation();
     },
-    addDish() {
+    addTable() {
       if (this.isEdit == false) {
         this.validate();
         if (this.valid) {
-          this.dish.is_active = true;
-          this.dish.genre_id = this.select._id;
-          let uri = "http://" + window.location.hostname + ":3000/dishes";
+          // console.log(this.table);
+          let uri = "http://" + window.location.hostname + ":3000/tables";
           axios
-            .post(uri, this.dish)
+            .post(uri, this.table)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
@@ -133,18 +105,18 @@ export default {
         }
       }
     },
-    editDish() {
+    editTable() {
       if (this.isEdit == true) {
         this.validate();
         if (this.valid) {
-          this.dish.genre_id = this.select._id;
-          console.log(this.dish);
+          this.table.table_id = this.select._id;
+          // console.log(this.table);
           let uri =
             `http://` +
             window.location.hostname +
-            `:3000/dishes/${this.dish._id}`;
+            `:3000/tables/${this.table._id}`;
           axios
-            .patch(uri, this.dish)
+            .patch(uri, this.table)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
@@ -162,30 +134,6 @@ export default {
         }
       }
     },
-    getGenreList() {
-      let uri = "http://" + window.location.hostname + ":3000/genre";
-      axios.get(uri).then((response) => {
-        this.genreList = response.data;
-      });
-    },
-    setDishGenre(dishEdt) {
-      if (dishEdt == null) {
-        this.select = null;
-        return;
-      }
-      let uri =
-        `http://` +
-        window.location.hostname +
-        `:3000/genre/${dishEdt.genre_id}`;
-      axios.get(uri).then((response) => {
-        this.select = response.data.name;
-      });
-      // console.log(this.select);
-      // return;
-    },
-  },
-  created() {
-    this.getGenreList();
   },
   watch: {
     isEdit(newValue) {
@@ -199,14 +147,21 @@ export default {
       }
     },
   },
+  created() {
+    this.getTableList();
+  },
   computed: {
-    dish: {
+    table: {
       get() {
-        this.setDishGenre(this.dishEdit);
-        return this.dishEdit == null ? {} : this.dishEdit;
+        return this.tableEdit == null
+          ? {
+              number: "0",
+              order_id: "0",
+            }
+          : this.tableEdit;
       },
-      set(dishEdit) {
-        this.$emit("input", dishEdit);
+      set(tableEdit) {
+        this.$emit("tableEdit", tableEdit);
       },
     },
     show: {

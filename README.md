@@ -1,3 +1,12 @@
+Steps of Orders
+
+-> Started
+-> Placed
+-> Accepted
+-> Prepairing
+-> Ready
+-> Serving
+
 ---> To Run Frontend
 
 cd client

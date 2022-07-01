@@ -3,7 +3,7 @@
     <v-dialog v-model="show" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{ addoredit }} Dish</span>
+          <span class="text-h5">{{ addoredit }} Rate</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="form" lazy-validation v-model="valid">
@@ -12,17 +12,17 @@
               :type="alertType"
               closable
               close-label="Close Alert"
-              >Dish {{ addoredit }}ed
+              >Rate {{ addoredit }}ed
               {{ alertType == "success" ? "Successfully" : "Failed" }}.</v-alert
             >
             <v-container>
               <v-row>
                 <v-col cols="12" md="12">
                   <v-text-field
-                    v-model="dish.name"
-                    :rules="dishNameRules"
+                    v-model="rate.name"
+                    :rules="rateNameRules"
                     :counter="20"
-                    label="Dish Title*"
+                    label="Rate Title*"
                     required
                   ></v-text-field>
                 </v-col>
@@ -30,36 +30,37 @@
               <v-row>
                 <v-col cols="12" md="12">
                   <v-textarea
-                    v-model="dish.desc"
-                    :rules="dishDescRules"
+                    v-model="rate.desc"
+                    :rules="rateDescRules"
                     :counter="200"
                     rows="1"
                     auto-grow
-                    label="Dish Description*"
+                    label="Rate Description*"
                     required
                   ></v-textarea>
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="12">
-                  <v-combobox
-                    v-model="select"
-                    :items="genreList"
-                    item-value="_id"
-                    item-text="name"
-                    label="Genre"
-                    outlined
-                    :rules="genreRule"
-                  ></v-combobox>
+                <v-col cols="12" md="12">
+                  <v-textarea
+                    v-model="rate.price"
+                    :rules="ratePriceRules"
+                    :counter="6"
+                    rows="1"
+                    auto-grow
+                    label="Price*"
+                    required
+                    type="number"
+                  ></v-textarea>
                 </v-col>
               </v-row>
               <v-btn
                 class="mr-4"
-                @click="isEdit ? editDish() : addDish()"
+                @click="isEdit ? editRate() : addRate()"
                 variant="outlined"
                 color="primary"
               >
-                {{ addoredit }} Dish
+                {{ addoredit }} Rate
               </v-btn>
             </v-container>
           </v-form>
@@ -76,7 +77,8 @@ import axios from "axios";
 export default {
   props: {
     value: Boolean,
-    dishEdit: Object,
+    dishId: String,
+    rateEdit: Object,
     isEdit: Boolean,
   },
   data: () => ({
@@ -85,17 +87,20 @@ export default {
     isAlert: false,
     alertType: "success",
     addoredit: "Add",
-    // dish: {},
+    // rate: {},
     valid: false,
-    dishNameRules: [
+    rateNameRules: [
       (v) => !!v || "Name is required",
       (v) => (v && v.length <= 20) || "Name must be less than 20",
     ],
-    dishDescRules: [
+    rateDescRules: [
       (v) => !!v || "Description is required",
       (v) => (v && v.length <= 200) || "Description must be less than 200",
     ],
-    genreRule: [(v) => !!v || "Genre is required"],
+    ratePriceRules: [
+      (v) => !!v || "Price is required",
+      (v) => (v && v >= 0) || "Price must be Greater than 0",
+    ],
   }),
   methods: {
     validate() {
@@ -107,15 +112,15 @@ export default {
     resetValidation() {
       this.$refs.form.resetValidation();
     },
-    addDish() {
+    addRate() {
       if (this.isEdit == false) {
         this.validate();
         if (this.valid) {
-          this.dish.is_active = true;
-          this.dish.genre_id = this.select._id;
-          let uri = "http://" + window.location.hostname + ":3000/dishes";
+          this.rate.is_active = true;
+          this.rate.dish_id = this.dishId;
+          let uri = "http://" + window.location.hostname + ":3000/ratelist";
           axios
-            .post(uri, this.dish)
+            .post(uri, this.rate)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
@@ -133,18 +138,18 @@ export default {
         }
       }
     },
-    editDish() {
+    editRate() {
       if (this.isEdit == true) {
         this.validate();
         if (this.valid) {
-          this.dish.genre_id = this.select._id;
-          console.log(this.dish);
+          this.rate.dish_id = this.dishId;
+          console.log(this.rate);
           let uri =
             `http://` +
             window.location.hostname +
-            `:3000/dishes/${this.dish._id}`;
+            `:3000/ratelist/${this.rate._id}`;
           axios
-            .patch(uri, this.dish)
+            .patch(uri, this.rate)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
@@ -162,30 +167,6 @@ export default {
         }
       }
     },
-    getGenreList() {
-      let uri = "http://" + window.location.hostname + ":3000/genre";
-      axios.get(uri).then((response) => {
-        this.genreList = response.data;
-      });
-    },
-    setDishGenre(dishEdt) {
-      if (dishEdt == null) {
-        this.select = null;
-        return;
-      }
-      let uri =
-        `http://` +
-        window.location.hostname +
-        `:3000/genre/${dishEdt.genre_id}`;
-      axios.get(uri).then((response) => {
-        this.select = response.data.name;
-      });
-      // console.log(this.select);
-      // return;
-    },
-  },
-  created() {
-    this.getGenreList();
   },
   watch: {
     isEdit(newValue) {
@@ -200,13 +181,32 @@ export default {
     },
   },
   computed: {
-    dish: {
+    // dishID: {
+    //   get() {
+    //     if (this.dishId == null) {
+    //       return [];
+    //     }
+    //     // this.setDishGenre(this.dishEdit);
+    //     return this.dishId;
+    //   },
+    //   set(dishId) {
+    //     this.$emit("input", dishId);
+    //   },
+    // },
+    rate: {
       get() {
-        this.setDishGenre(this.dishEdit);
-        return this.dishEdit == null ? {} : this.dishEdit;
+        if (this.rateEdit == null) {
+          // this.addoredit = "Add";
+          // this.reset();
+          // this.resetValidation();
+          // this.setRateGenre(null);
+          return {};
+        }
+        // this.setRateGenre(this.rateEdit);
+        return this.rateEdit;
       },
-      set(dishEdit) {
-        this.$emit("input", dishEdit);
+      set(rateEdit) {
+        this.$emit("input", rateEdit);
       },
     },
     show: {

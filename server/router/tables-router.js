@@ -6,9 +6,10 @@ const table_db = require('../model/tables-model');
 router.get('/', async (req, res) => {
     try {
         const tabels = await table_db.find();
+        console.log("Tables GET: ", tabels);
         res.json(tabels);
     } catch (err) {
-        console.log({ message: err.message });
+        console.log("Tables GET Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -20,34 +21,36 @@ router.post('/', async (req, res) => {
         order_id: req.body.order_id,
     });
     try {
-        // const newTable = await table.save();
-
         const newTable = await table.save();
-
+        console.log("Tables POST: ", newTable);
         res.status(201).json(newTable);
     } catch (err) {
-        console.error({ message: err.message });
+        console.log("Tables POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
 
 // Getting one table
 router.get('/:id', getTables, async (req, res) => {
-    if (res.tables)
-        res.json(res.tables);
+    console.log("Tables GET ID: ", res.tables);
+    res.json(res.tables);
 });
 
 // Updating one table
 router.patch('/:id', getTables, async (req, res) => {
     if (req.body.order_id != null) {
-        res.tables.order_id = req.body.order_id
+        res.tables.order_id = req.body.order_id;
+    }
+    if (req.body.number != null) {
+        res.tables.number = req.body.number;
     }
 
     try {
         const updatedTable = await res.tables.save()
+        console.log("Tables PATCH: ", updatedTable);
         res.json(updatedTable)
     } catch {
-        console.log({ message: err.message });
+        console.log("Tables PATCH Error: ", err.message);
         res.status(400).json({ message: err.message })
     }
 
@@ -57,9 +60,10 @@ router.patch('/:id', getTables, async (req, res) => {
 router.delete('/:id', getTables, async (req, res) => {
     try {
         await res.tables.remove()
+        console.log("Tables DEL: ", "Deleted This table");
         res.json({ message: 'Deleted This table' })
     } catch (err) {
-        console.log({ message: err.message });
+        console.log("Tables DEL Error: ", res.json);
         res.status(500).json({ message: err.message })
     }
 })

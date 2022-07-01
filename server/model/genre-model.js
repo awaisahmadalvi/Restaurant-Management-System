@@ -9,11 +9,6 @@ const genreSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    create_date: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Genre', genreSchema);

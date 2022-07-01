@@ -41,7 +41,7 @@
                   >
                   <v-img
                     :src="image.data"
-                    :lazy-src="require('../../../assets/logo.png')"
+                    :lazy-src="require('../../assets/logo.png')"
                     aspect-ratio="1"
                     class="grey lighten-2"
                   >
@@ -89,8 +89,8 @@
             </v-row>
           </v-container>
 
-          <v-btn class="mx-6 my-2" color="primary" @click="uploadPics"
-            >Upload Pics
+          <v-btn class="mx-6 my-2" color="primary" @click="uploadImages"
+            >Upload Images
           </v-btn>
           <small>*indicates required field</small>
         </v-card-text>
@@ -122,13 +122,13 @@ export default {
     ],
   }),
   methods: {
-    uploadPics: function () {
+    uploadImages: function () {
       this.images.forEach((image2Upload, index) => {
         if (!this.fileList[index].isUploaded) {
           let imageSchema = {};
           imageSchema.dish_id = this.dishID;
           imageSchema.image_data = image2Upload.data;
-          let uri = "http://localhost:3000/images";
+          let uri = "http://" + window.location.hostname + ":3000/images";
           axios.post(uri, imageSchema).then(() => {
             // this.$router.push({ name: "posts" });
             image2Upload.isUploaded = true;

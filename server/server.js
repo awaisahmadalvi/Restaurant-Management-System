@@ -35,8 +35,8 @@ const orderDetialRouter = require('./router/orderdetail-router');
 server.use('/orderdetail', orderDetialRouter);
 
 // Order List router link
-const orderListRouter = require('./router/orderlist-router');
-server.use('/orderlist', orderListRouter);
+const ordersListRouter = require('./router/ordersList-router');
+server.use('/orderslist', ordersListRouter);
 
 // Ratelist router link
 const ratelistRouter = require('./router/ratelist-router');

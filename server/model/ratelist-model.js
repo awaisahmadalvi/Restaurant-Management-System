@@ -1,3 +1,4 @@
+const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
 
 const ratelistSchema = new mongoose.Schema({
@@ -9,23 +10,18 @@ const ratelistSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    rate: {
+    price: {
         type: String,
         required: true
     },
     dish_id: {
-        type: String,
+        type: ObjectId,
         required: true
     },
     is_active: {
         type: Boolean,
         required: true
     },
-    create_date: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model('Rate_List', ratelistSchema);
+module.exports = mongoose.model('RateList', ratelistSchema);

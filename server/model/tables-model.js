@@ -1,3 +1,4 @@
+const { ObjectId, NilObjectID } = require('bson');
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
@@ -8,15 +9,12 @@ const tablesSchema = new mongoose.Schema({
         unique: true,
     },
     order_id: {
-        type: String,
-        required: true
-    },
-    create_date: {
-        type: Date,
+        // type: mongoose.Schema.Types.Mixed,
+        type: [ObjectId | String],
         required: true,
-        default: Date.now
+        default: "-1",
     },
-});
+}, { timestamps: true });
 
 tablesSchema.plugin(uniqueValidator)
 module.exports = mongoose.model('Tables', tablesSchema);

@@ -3,7 +3,7 @@
     <v-dialog v-model="show" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{ addoredit }} Dish</span>
+          <span class="text-h5">{{ addoredit }} Order</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="form" lazy-validation v-model="valid">
@@ -12,54 +12,76 @@
               :type="alertType"
               closable
               close-label="Close Alert"
-              >Dish {{ addoredit }}ed
+              >Order {{ addoredit }}ed
               {{ alertType == "success" ? "Successfully" : "Failed" }}.</v-alert
             >
             <v-container>
               <v-row>
-                <v-col cols="12" md="12">
-                  <v-text-field
-                    v-model="dish.name"
-                    :rules="dishNameRules"
-                    :counter="20"
-                    label="Dish Title*"
-                    required
-                  ></v-text-field>
+                <v-col cols="12">
+                  <v-combobox
+                    v-model="select"
+                    :items="tableList"
+                    item-value="_id"
+                    item-text="number"
+                    label="Table #"
+                    outlined
+                  >
+                    <template v-slot:no-data>
+                      <v-list-item class="error">
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            <span>No Table Free. Please Create/free one.</span>
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-combobox>
                 </v-col>
               </v-row>
+
               <v-row>
-                <v-col cols="12" md="12">
-                  <v-textarea
-                    v-model="dish.desc"
-                    :rules="dishDescRules"
-                    :counter="200"
-                    rows="1"
-                    auto-grow
-                    label="Dish Description*"
-                    required
-                  ></v-textarea>
+                <v-col cols="12">
+                  <v-combobox
+                    v-model="order.is_paid"
+                    :items="isPaidList"
+                    label="Is Order Paid?*"
+                    outlined
+                    :disabled="!isEdit"
+                  ></v-combobox>
                 </v-col>
               </v-row>
               <v-row>
                 <v-col cols="12">
                   <v-combobox
-                    v-model="select"
-                    :items="genreList"
-                    item-value="_id"
-                    item-text="name"
-                    label="Genre"
+                    v-model="order.status"
+                    :items="statusList"
+                    label="Status"
                     outlined
-                    :rules="genreRule"
+                    :disabled="!isEdit"
                   ></v-combobox>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="12" md="12">
+                  <v-textarea
+                    v-model="order.total_bill"
+                    rows="1"
+                    auto-grow
+                    label="Total Bill*"
+                    required
+                    type="number"
+                    :disabled="!isEdit"
+                  ></v-textarea>
                 </v-col>
               </v-row>
               <v-btn
                 class="mr-4"
-                @click="isEdit ? editDish() : addDish()"
+                @click="isEdit ? editOrder() : addOrder()"
                 variant="outlined"
                 color="primary"
               >
-                {{ addoredit }} Dish
+                {{ addoredit }} Order
               </v-btn>
             </v-container>
           </v-form>
@@ -76,26 +98,40 @@ import axios from "axios";
 export default {
   props: {
     value: Boolean,
-    dishEdit: Object,
+    orderId: String,
+    orderEdit: Object,
     isEdit: Boolean,
   },
   data: () => ({
-    genreList: [],
+    tableList: [],
+    table_id: null,
     select: [],
     isAlert: false,
     alertType: "success",
     addoredit: "Add",
-    // dish: {},
+    // order: {},
     valid: false,
-    dishNameRules: [
+    isPaidList: ["No", "Yes"],
+    statusList: [
+      "Started",
+      "Placed",
+      "Accepted",
+      "Prepairing",
+      "Ready",
+      "Serving",
+    ],
+    orderNameRules: [
       (v) => !!v || "Name is required",
       (v) => (v && v.length <= 20) || "Name must be less than 20",
     ],
-    dishDescRules: [
+    orderDescRules: [
       (v) => !!v || "Description is required",
       (v) => (v && v.length <= 200) || "Description must be less than 200",
     ],
-    genreRule: [(v) => !!v || "Genre is required"],
+    orderPriceRules: [
+      (v) => !!v || "Price is required",
+      (v) => (v && v >= 0) || "Price must be Greater than 0",
+    ],
   }),
   methods: {
     validate() {
@@ -107,22 +143,22 @@ export default {
     resetValidation() {
       this.$refs.form.resetValidation();
     },
-    addDish() {
+    addOrder() {
       if (this.isEdit == false) {
         this.validate();
         if (this.valid) {
-          this.dish.is_active = true;
-          this.dish.genre_id = this.select._id;
-          let uri = "http://" + window.location.hostname + ":3000/dishes";
+          this.order.table_id = this.select._id;
+          // console.log(this.order);
+          let uri = "http://" + window.location.hostname + ":3000/orderslist";
           axios
-            .post(uri, this.dish)
+            .post(uri, this.order)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
               new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
                 this.show = false;
                 this.isAlert = false;
-                this.reset();
+                // this.reset();
               });
             })
             .catch((error) => {
@@ -133,25 +169,25 @@ export default {
         }
       }
     },
-    editDish() {
+    editOrder() {
       if (this.isEdit == true) {
         this.validate();
         if (this.valid) {
-          this.dish.genre_id = this.select._id;
-          console.log(this.dish);
+          this.order.table_id = this.select._id;
+          // console.log(this.order);
           let uri =
             `http://` +
             window.location.hostname +
-            `:3000/dishes/${this.dish._id}`;
+            `:3000/orderslist/${this.order._id}`;
           axios
-            .patch(uri, this.dish)
+            .patch(uri, this.order)
             .then(() => {
               this.alertType = "success";
               this.isAlert = true;
               new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
                 this.show = false;
                 this.isAlert = false;
-                this.reset();
+                // this.reset();
               });
             })
             .catch((error) => {
@@ -162,30 +198,23 @@ export default {
         }
       }
     },
-    getGenreList() {
-      let uri = "http://" + window.location.hostname + ":3000/genre";
+    getTableList() {
+      let uri = "http://" + window.location.hostname + ":3000/tables";
       axios.get(uri).then((response) => {
-        this.genreList = response.data;
+        this.tableList = response.data;
+        // console.log("Tables list: ", this.tableList);
       });
     },
-    setDishGenre(dishEdt) {
-      if (dishEdt == null) {
+    setOrderTable(orderEdt) {
+      if (this.isEdit == false) {
         this.select = null;
-        return;
+        return orderEdt;
       }
-      let uri =
-        `http://` +
-        window.location.hostname +
-        `:3000/genre/${dishEdt.genre_id}`;
-      axios.get(uri).then((response) => {
-        this.select = response.data.name;
-      });
-      // console.log(this.select);
-      // return;
+      this.select = {
+        number: orderEdt.table[0].number,
+        _id: orderEdt.table_id,
+      };
     },
-  },
-  created() {
-    this.getGenreList();
   },
   watch: {
     isEdit(newValue) {
@@ -199,14 +228,23 @@ export default {
       }
     },
   },
+  created() {
+    this.getTableList();
+  },
   computed: {
-    dish: {
+    order: {
       get() {
-        this.setDishGenre(this.dishEdit);
-        return this.dishEdit == null ? {} : this.dishEdit;
+        this.setOrderTable(this.orderEdit);
+        return this.orderEdit == null
+          ? {
+              is_paid: "No",
+              total_bill: "Not Available Yet",
+              status: "Started",
+            }
+          : this.orderEdit;
       },
-      set(dishEdit) {
-        this.$emit("input", dishEdit);
+      set(orderEdit) {
+        this.$emit("input", orderEdit);
       },
     },
     show: {
@@ -216,7 +254,7 @@ export default {
       set(value) {
         this.$emit("input", value);
         if (value == false) {
-          this.reset();
+          // this.reset();
           this.resetValidation();
         }
       },

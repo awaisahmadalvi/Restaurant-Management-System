@@ -1,8 +1,9 @@
+const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
 
 const orderlistSchema = new mongoose.Schema({
-    order_id: {
-        type: String,
+    orderdetail_id: {
+        type: ObjectId,
         required: true
     },
     rate_id: {
@@ -13,11 +14,6 @@ const orderlistSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    create_date: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('OrderList', orderlistSchema);

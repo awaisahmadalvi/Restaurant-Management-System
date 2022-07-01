@@ -10,8 +10,10 @@ const image_db = require('../model/images-model');
 router.get('/', async (req, res) => {
     try {
         const images = await image_db.find();
+        console.log("Image GET: ", images);
         res.json(images);
     } catch (err) {
+        console.log("Image GET Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -24,14 +26,17 @@ router.post('/', async (req, res) => {
     });
     try {
         const newImage = await image.save();
+        console.log("Image POST: ", newImage);
         res.status(201).json(newImage);
     } catch (err) {
+        console.log("Image POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
 
 // Getting one image using image id
 router.get('/:id', getImage, (req, res) => {
+    console.log("Image GET ID: ", res.image);
     res.json(res.image)
 });
 
@@ -46,8 +51,10 @@ router.patch('/:id', getImage, async (req, res) => {
 
     try {
         const updatedImage = await res.image.save()
+        console.log("Image PATCH: ", updatedImage);
         res.json(updatedImage)
     } catch {
+        console.log("Image PATCH Error: ", err.message);
         res.status(400).json({ message: err.message })
     }
 
@@ -57,8 +64,10 @@ router.patch('/:id', getImage, async (req, res) => {
 router.delete('/:id', getImage, async (req, res) => {
     try {
         await res.image.remove()
+        console.log("Image DEL: ", 'Deleted This Image');
         res.json({ message: 'Deleted This Image' })
     } catch (err) {
+        console.log("Image DEL Error: ", err.message);
         res.status(500).json({ message: err.message })
     }
 })
@@ -87,8 +96,10 @@ async function getImage(req, res, next) {
 router.get('/dishid/:id', async (req, res) => {
     try {
         const images = await image_db.find({ dish_id: req.params.id });
+        console.log("Image GET DISHID: ", images);
         res.json(images);
     } catch (err) {
+        console.log("Image GET DISHID Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
