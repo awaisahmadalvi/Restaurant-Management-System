@@ -1,30 +1,23 @@
 <template>
   <v-sheet>
     <v-navigation-drawer v-model="drawer" app>
-      <v-system-bar></v-system-bar>
       <v-list>
-        <v-list-item>
-          <v-list-item-avatar>
-            <v-img src="@/assets/bilal.jpg"></v-img>
+        <v-list-item class="justify-center">
+          <v-list-item-avatar class="elevation-6" size="120">
+            <v-img src="@/assets/Junaid.jpg"></v-img>
           </v-list-item-avatar>
         </v-list-item>
 
-        <v-list-item link>
+        <v-list-item class="text-center">
           <v-list-item-content>
-            <v-list-item-title class="text-h6">
-              Bilal Hassan
-            </v-list-item-title>
-            <v-list-item-subtitle>bilal@gmail.com</v-list-item-subtitle>
+            <v-list-item-title class="text-h6"> Junaid Alvi </v-list-item-title>
+            <v-list-item-subtitle>+92 305 7310036</v-list-item-subtitle>
           </v-list-item-content>
-
-          <v-list-item-action>
-            <v-icon>mdi-menu-down</v-icon>
-          </v-list-item-action>
         </v-list-item>
       </v-list>
       <v-divider></v-divider>
       <v-list nav dense>
-        <v-list-item-group v-model="selectedItem" color="primary">
+        <v-list-item-group active-class="primary--text" v-model="selectedItem">
           <v-list-item
             v-for="(item, i) in items"
             :key="i"
@@ -41,49 +34,31 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-
-      <v-list-group
-        v-for="item in items2"
-        :key="item.title"
-        :prepend-icon="item.action"
-        no-action
-      >
-        <template v-slot:activator>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title"></v-list-item-title>
-          </v-list-item-content>
-        </template>
-
-        <v-list-item v-for="child in item.items" :key="child.title">
-          <v-list-item-content>
-            <v-list-item-title v-text="child.title"></v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list-group>
     </v-navigation-drawer>
 
-    <v-app-bar
-      app
+    <v-app-bar app dense elevate-on-scroll>
+      <!-- <v-app-bar app dense dark color="#6A76AB"> -->
+      <!--     
+      src="../../assets/banner.jpg"
       fade-img-on-scroll
       shrink-on-scroll
-      dense
-      dark
-      color="#6A76AB"
-      src="../../assets/banner.jpg"
+      extended
+      extension-height="50"
       prominent
       elevation="12"
       elevate-on-scroll
-      extended
-      extension-height="50"
-    >
       <template v-slot:img="{ props }">
         <v-img
           v-bind="props"
           gradient="to top left, rgba(50,100,100,.1), rgba(25,32,72,.5)"
         ></v-img>
-      </template>
+      </template> -->
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Restaurant Management System</v-toolbar-title>
+      <v-toolbar-title>JÜSTA HIGHLAND & RESORT</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon class="d-print-none" @click="toggle_dark_mode">
+        <v-icon>mdi-theme-light-dark</v-icon>
+      </v-btn>
     </v-app-bar>
   </v-sheet>
 </template>
@@ -109,54 +84,35 @@ export default {
         text: "Orders",
         route: "/orderlist",
       },
-      { icon: "mdi-silverware-fork-knife", text: "Test", route: "/test" },
-      {
-        icon: "mdi-silverware-fork-knife",
-        text: "Data Table",
-        route: "/datatable",
-      },
-    ],
-    items2: [
-      {
-        action: "mdi-ticket",
-        items: [{ title: "List Item" }],
-        title: "Attractions",
-      },
-      {
-        action: "mdi-silverware-fork-knife",
-        items: [
-          { title: "Breakfast & brunch" },
-          { title: "New American" },
-          { title: "Sushi" },
-        ],
-        title: "Dining",
-      },
-      {
-        action: "mdi-school",
-        items: [{ title: "List Item" }],
-        title: "Education",
-      },
-      {
-        action: "mdi-human-male-female-child",
-        items: [{ title: "List Item" }],
-        title: "Family",
-      },
-      {
-        action: "mdi-bottle-tonic-plus",
-        items: [{ title: "List Item" }],
-        title: "Health",
-      },
-      {
-        action: "mdi-briefcase",
-        items: [{ title: "List Item" }],
-        title: "Office",
-      },
-      {
-        action: "mdi-tag",
-        items: [{ title: "List Item" }],
-        title: "Promotions",
-      },
+      { icon: "mdi-collage", text: "Menu", route: "/menugrid" },
+      { icon: "mdi-chart-bar", text: "Reports", route: "/ordersreport" },
     ],
   }),
+  methods: {
+    toggle_dark_mode: function () {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      localStorage.setItem("dark_theme", this.$vuetify.theme.dark.toString());
+    },
+  },
+  mounted() {
+    const theme = localStorage.getItem("dark_theme");
+    if (theme) {
+      if (theme === "true") {
+        this.$vuetify.theme.dark = true;
+      } else {
+        this.$vuetify.theme.dark = false;
+      }
+    } else if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      this.$vuetify.theme.dark = true;
+      localStorage.setItem("dark_theme", this.$vuetify.theme.dark.toString());
+    }
+  },
 };
 </script>
+
+
+<style>
+</style>

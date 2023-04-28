@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
         console.log("Image GET: ", images);
         res.json(images);
     } catch (err) {
-        console.log("Image GET Error: ", err.message);
+        console.error("Image GET Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         console.log("Image POST: ", newImage);
         res.status(201).json(newImage);
     } catch (err) {
-        console.log("Image POST Error: ", err.message);
+        console.error("Image POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
@@ -67,7 +67,7 @@ router.delete('/:id', getImage, async (req, res) => {
         console.log("Image DEL: ", 'Deleted This Image');
         res.json({ message: 'Deleted This Image' })
     } catch (err) {
-        console.log("Image DEL Error: ", err.message);
+        console.error("Image DEL Error: ", err.message);
         res.status(500).json({ message: err.message })
     }
 })
@@ -99,7 +99,7 @@ router.get('/dishid/:id', async (req, res) => {
         console.log("Image GET DISHID: ", images);
         res.json(images);
     } catch (err) {
-        console.log("Image GET DISHID Error: ", err.message);
+        console.error("Image GET DISHID Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });

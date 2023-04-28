@@ -6,6 +6,10 @@ const dishesSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    number: {
+        type: Number,
+        required: true
+    },
     genre_id: {
         type: ObjectId,
         required: true

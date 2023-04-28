@@ -5,11 +5,11 @@ const ratelist_db = require('../model/ratelist-model');
 // Getting all ratelist
 router.get('/', async (req, res) => {
     try {
-        const ratelist = await ratelist_db.find();
+        ratelist = await ratelist_db.find();
         console.log("RateList GET: ", ratelist);
         res.json(ratelist);
     } catch (err) {
-        console.log("RateList GET Error: ", err.message);
+        console.error("RateList GET Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
         console.log("RateList POST: ", newRate);
         res.status(201).json(newRate);
     } catch (err) {
-        console.log("RateList POST Error: ", err.message);
+        console.error("RateList POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
@@ -75,7 +75,7 @@ router.delete('/:id', getRateList, async (req, res) => {
         console.log("RateList DEL: ", 'Deleted This ratelist');
         res.json({ message: 'Deleted This ratelist' })
     } catch (err) {
-        console.log("RateList DEL Error: ", err.message);
+        console.error("RateList DEL Error: ", err.message);
         res.status(500).json({ message: err.message })
     }
 })
@@ -101,15 +101,20 @@ async function getRateList(req, res, next) {
 // Image logic function, association with dish id
 // *******************************************
 
-// Get all images related to a dish id
+// Get rateslist related to a dish id
 router.get('/dishid/:id', async (req, res) => {
+    const { is_active } = req.query;
+
     try {
-        const ratelist = await ratelist_db.find({ dish_id: req.params.id });
+        if (is_active)
+            ratelist = await ratelist_db.find({ is_active: true, dish_id: req.params.id });
+        else
+            ratelist = await ratelist_db.find({ dish_id: req.params.id });
         console.log("RateList GET DISHID: ", ratelist, { dish_id: req.params.id });
 
         res.json(ratelist);
     } catch (err) {
-        console.log("RateList GET DISHID Error: ", err.message);
+        console.error("RateList GET DISHID Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });

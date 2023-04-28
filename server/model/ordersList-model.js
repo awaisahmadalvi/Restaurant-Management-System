@@ -1,7 +1,14 @@
 const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
+
+mongoose.Promise = global.Promise;
 
 const orderListSchema = new mongoose.Schema({
+    daily_number: {
+        type: String,
+        required: true,
+    },
     table_id: {
         type: ObjectId,
         required: true
@@ -12,9 +19,9 @@ const orderListSchema = new mongoose.Schema({
         default: "No"
     },
     total_bill: {
-        type: String,
+        type: Number,
         required: true,
-        default: "Not Available Yet"
+        default: 0
     },
     status: {
         type: String,
@@ -22,5 +29,7 @@ const orderListSchema = new mongoose.Schema({
         default: "Started"
     },
 }, { timestamps: true });
+
+orderListSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('OrdersList', orderListSchema);

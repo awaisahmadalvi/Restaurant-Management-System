@@ -24,6 +24,7 @@
                     :counter="20"
                     label="Genre Name*"
                     required
+                    autofocus
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -137,9 +138,7 @@ export default {
       }
     },
   },
-  created() {
-    this.getGenreList();
-  },
+  created() {},
   watch: {
     isEdit(newValue) {
       // console.log("oldValue: ", oldValue);

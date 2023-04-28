@@ -1,56 +1,49 @@
 <template>
-  <v-sheet min-height="580px">
-    <div>
-      <h1 class="blue-grey ma-2 text-center white--text">Images of Dish</h1>
-      <!-- <v-btn :to="{ name: 'Add Table' }" variant="outlined" color="primary">
-      Add Table
-    </v-btn> -->
+  <v-card class="ma-6 pb-1">
+    <v-card-title
+      class="
+        text-h4
+        font-weight-bold
+        title
+        py-2
+        text-center
+        justify-center
+        white--text
+      "
+      >Images of {{ dish.name }}
+    </v-card-title>
 
-      <v-spacer></v-spacer>
+    <v-spacer></v-spacer>
 
-      <ImageAddDialog :dishId="dishId" v-model="showEditForm" />
-      <v-container>
-        <v-row>
-          <v-col
-            v-for="(image, index) in images"
-            :key="index"
-            :cols="6"
-            :sm="4"
-          >
-            <v-card>
-              <v-img
-                :src="image.image_data"
-                :lazy-src="require('../../assets/logo.png')"
-                aspect-ratio="1"
-                class="grey lighten-2"
-              >
-                <template v-slot:placeholder>
-                  <v-row
-                    class="fill-height ma-0"
-                    align="center"
-                    justify="center"
-                  >
-                    <v-progress-circular
-                      indeterminate
-                      color="grey lighten-5"
-                    ></v-progress-circular>
-                  </v-row>
-                </template>
-                <v-card-title>
-                  <v-spacer />
-                  <v-fab-transition>
-                    <v-btn fab light small @click="deleteImage(image._id)">
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-fab-transition>
-                </v-card-title>
-              </v-img>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-  </v-sheet>
+    <ImageAddDialog class="mr-4 mt-4" :dishId="dishId" v-model="showEditForm" />
+    <v-container>
+      <v-row>
+        <v-col v-for="(image, index) in images" :key="index" :cols="6" :sm="4">
+          <v-card>
+            <v-img
+              :src="image.image_data"
+              :lazy-src="require('../../assets/logo.png')"
+              aspect-ratio="1"
+            >
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular indeterminate></v-progress-circular>
+                </v-row>
+              </template>
+              <v-card-title>
+                <v-spacer />
+                <v-fab-transition>
+                  <v-btn fab light small @click="deleteImage(image._id)">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-fab-transition>
+              </v-card-title>
+            </v-img>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-card>
 </template>
 
 <script>
@@ -65,6 +58,7 @@ export default {
     return {
       images: [],
       dishId: null,
+      dish: [],
       showEditForm: false,
     };
   },
@@ -76,15 +70,37 @@ export default {
         window.location.hostname +
         `:3000/images/dishid/${this.dishId}`;
       console.log(uri);
-      axios.get(uri).then((response) => {
-        this.images = response.data;
-      });
+      axios
+        .get(uri)
+        .then((response) => {
+          this.images = response.data;
+        })
+        .catch((error) => {
+          console.error("ERROR getImages: ", error);
+        });
     },
     deleteImage(id) {
       let uri = `http://` + window.location.hostname + `:3000/images/${id}`;
-      axios.delete(uri, this.images).then(() => {
-        this.getImages();
-      });
+      axios
+        .delete(uri, this.images)
+        .then(() => {
+          this.getImages();
+        })
+        .catch((error) => {
+          console.error("ERROR deleteImage: ", error);
+        });
+    },
+    getDish() {
+      let uri =
+        `http://` + window.location.hostname + `:3000/dishes/${this.dishId}`;
+      axios
+        .get(uri, this.dish)
+        .then((response) => {
+          this.dish = response.data;
+        })
+        .catch((error) => {
+          console.error("ERROR getDish: ", error);
+        });
     },
   },
   mounted() {
@@ -93,6 +109,7 @@ export default {
   created() {
     this.dishId = this.$route.params.id;
     this.getImages();
+    this.getDish();
   },
   watch: {
     // showDelDialog(val) {

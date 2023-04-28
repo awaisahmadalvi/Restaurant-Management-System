@@ -21,4 +21,5 @@ cd server
 
 npm install
 
+nodemon.cmd server.js
 npm run dev

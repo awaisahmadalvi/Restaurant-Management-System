@@ -1,141 +1,275 @@
 const express = require('express');
 const router = express.Router();
-const order_db = require('../model/ordersList-model');
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
+const order_db = require('../model/ordersList-model');
+const orderDetail_db = require('../model/orderDetail-model');
+const table_db = require('../model/tables-model');
 
-// Getting all order
-router.get('/', getOrderDetailwTable, async (req, res) => {
-    try {
-        // const ordersdetail = await order_db.find();
+const getPagination = (page, size) => {
+    const limit = size ? +size : 5;
+    const offset = page ? page * limit : 0;
 
-        // res.status(200).json(res.ordersdetail)
-        console.log("Orderlist GET: ", res.ordersdetail);
-        res.json(res.ordersdetail);
-    } catch (err) {
-        console.log("Orderlist GET Error: ", err.message);
-        res.status(500).json({ message: err.message });
-    }
+    return { limit, offset };
+};
+
+function getMatchQuery(isCompleted, period_start, period_end) {
+    matchSyntx = []
+    if (period_start || period_end)
+        matchSyntx.push(
+            {
+                "$match": {
+                    "createdAt": { $gte: new Date(new Date(period_start) - new Date().getTimezoneOffset() * 60000), $lt: new Date(new Date(period_end) - new Date().getTimezoneOffset() * 60000) }
+                }
+            });
+    if (isCompleted != undefined)
+        matchSyntx.push(
+            {
+                "$match": {
+                    "is_paid": isCompleted
+                    // "is_paid": "No"
+                }
+            });
+
+    console.log(matchSyntx);
+    return matchSyntx
+}
+
+router.get('/stats', async (req, res) => {
+
+    const { isCompleted, period_start, period_end } = req.query;
+
+    console.log("REQUEST GETSTAT: ", req.query);
+
+    matchSyntx = getMatchQuery(isCompleted, period_start, period_end);
+
+    query = [
+        ...matchSyntx,
+        {
+            $project: {
+                total_bill: { $cond: [{ $isNumber: ['$total_bill'] }, '$total_bill', 0] }
+            }
+        },
+        {
+            $group:
+            {
+                _id: null,
+                inflows: {
+                    $sum: '$total_bill'
+
+                },
+                count: {
+                    $sum: 1
+                }
+            }
+        }];
+
+    console.log(query);
+
+    order_db.aggregate(query)
+        .then((data) => {
+            console.log("Orderlist GETSTAT: ", JSON.stringify(data));
+
+            res.send(data);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving tutorials.",
+            });
+        });
+});
+
+router.get('/', async (req, res) => {
+    const { page, size, isCompleted, period_start, period_end } = req.query;
+    const { limit, offset } = getPagination(page, size);
+
+    console.log("REQUEST: ", req.query);
+
+    matchSyntx = getMatchQuery(isCompleted, period_start, period_end);
+
+    query = [
+        ...matchSyntx,
+        { $sort: { createdAt: -1 } },
+        {
+            $lookup:
+            {
+                from: 'tables',
+                pipeline: [
+                    { $project: { number: 1, _id: 0 } }
+                ],
+                localField: 'table_id',
+                foreignField: '_id',
+                as: 'table'
+            }
+        },
+        {
+            $project: {
+                'table.number': 1, table_id: 1, is_paid: 1, total_bill: 1, status: 1, daily_number: 1,
+                createdAt: {
+                    $dateToString: {
+                        format: "%Y-%m-%d %H:%M:%S ",
+                        date: "$createdAt"
+                    }
+                },
+                // updatedAt: {
+                //     $dateToString: {
+                //         format: "%H:%M:%S %Y-%m-%d",
+                //         date: "$updatedAt"
+                //     }
+                // },
+            }
+        },
+        {
+            $facet: {
+                metadata: [{ $count: "total" }, {
+                    $addFields: {
+                        page: page,
+                    }
+                }],
+                docs: [{ $skip: offset }, { $limit: limit }] // add projection here wish you re-shape the docs
+            }
+        }];
+
+    console.log(query);
+
+    order_db.aggregate(query)
+        .then((data) => {
+            console.log("Orderlist GET: ", JSON.stringify(data));
+
+            res.send(data);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving tutorials.",
+            });
+        });
 });
 
 // Creating an order
 router.post('/', async (req, res) => {
     console.log("Post order", req.body);
-    const ordersdetail = new order_db({
+    orderCountObj = await order_db.find({ createdAt: { $gte: new Date(new Date().toISOString().split('T')[0]) } }, { daily_number: 1, _id: 0 }).sort({ daily_number: -1 }).limit(1);
+    console.log("orderCountObj:", orderCountObj);
+    orderCount = 0;
+    if (orderCountObj.length > 0)
+        orderCount = orderCountObj[0].daily_number;
+    orderList = new order_db({
         table_id: req.body.table_id,
         is_paid: req.body.is_paid,
         total_bill: req.body.total_bill,
         status: req.body.status,
+        daily_number: parseInt(orderCount) + 1,
     });
     try {
-        const newOrder = await ordersdetail.save();
+        newOrder = await orderList.save();
+        setOrderInTable(newOrder);
         console.log("Orderlist POST: ", newOrder);
         res.status(201).json(newOrder);
     } catch (err) {
-        console.log("Orderlist POST Error: ", err.message);
+        console.error("Orderlist POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
 
-
-// Getting one order
-router.get('/:id', getOrderDetailwTable, (req, res) => {
-    console.log("Orderlist GET ID: ", res.ordersdetail);
-    res.json(res.ordersdetail)
-});
-
 // Updating one order
-router.patch('/:id', getOrderDetail, async (req, res) => {
+router.patch('/:id', getOrdersList, async (req, res) => {
     if (req.body.table_id != null) {
-        res.ordersdetail.table_id = req.body.table_id
+        res.orderList.table_id = req.body.table_id
     }
     if (req.body.is_paid != null) {
-        res.ordersdetail.is_paid = req.body.is_paid
+        res.orderList.is_paid = req.body.is_paid
     }
     if (req.body.total_bill != null) {
-        res.ordersdetail.total_bill = req.body.total_bill
+        res.orderList.total_bill = req.body.total_bill
     }
     if (req.body.status != null) {
-        res.ordersdetail.status = req.body.status
+        res.orderList.status = req.body.status
+    }
+    if (req.body.daily_number != null) {
+        res.orderList.daily_number = req.body.daily_number
     }
 
+
     try {
-        const updatedOrderDetail = await res.ordersdetail.save()
-        console.log("Orderlist PATCH: ", updatedOrderDetail);
-        res.json(updatedOrderDetail)
-    } catch {
+        updatedOrderList = await res.orderList.save()
+        setOrderInTable(updatedOrderList)
+        console.log("Orderlist PATCH: ", updatedOrderList);
+        res.json(updatedOrderList)
+    } catch (err) {
         console.log("Orderlist PATCH Error: ", err.message);
-        res.status(400).json({ message: err.message })
+        res.status(400).json({ message: err.message });
     }
 
 })
 
 // Deleting one order
-router.delete('/:id', getOrderDetail, async (req, res) => {
+// router.delete('/:id', getOrdersList, async (req, res) => {
+router.delete('/:id', delOrdersList, async (req, res) => {
     try {
-        await res.ordersdetail.remove()
-        console.log("Orderlist DEL: ", 'Deleted This OrderDetail');
-        res.json({ message: 'Deleted This OrderDetail' })
+        console.log("Orderlist DEL: ", 'Deleted Order');
+        res.json({ message: 'Deleted Order' })
     } catch (err) {
-        console.log("Orderlist DEL Error: ", err.message);
+        console.error("Orderlist DEL Error: ", err.message);
         res.status(500).json({ message: err.message })
     }
 })
 
 
 
-// Middleware function for gettig order object by ID
-async function getOrderDetail(req, res, next) {
+// Middleware function for deleting order and its details (orderDetails) object by ID
+async function delOrdersList(req, res, next) {
     try {
 
-        ordersdetail = await order_db.findById(req.params.id)
-        if (ordersdetail == null) {
-            return res.status(404).json({ message: 'Cant find OrderDetail' })
+        orderList = await order_db.findByIdAndRemove(req.params.id)
+        table = await table_db.findOneAndUpdate({ _id: orderList.table_id }, { "order_id": ["-1"] });
+        orderDetail = await orderDetail_db.deleteMany({ "order_id": req.params.id })
+        // console.log("orderList deleted", orderList);
+        // console.log(orderDetail);
+        // await orderList.remove()
+        // await orderDetail.deleteMany()
+
+        if (orderList == null) {
+            return res.status(404).json({ message: 'Cant find OrderList' })
         }
     } catch (err) {
         return res.status(500).json({ message: err.message })
     }
 
-    res.ordersdetail = ordersdetail;
     next()
 }
 
 // Middleware function for gettig order object by ID
-async function getOrderDetailwTable(req, res, next) {
+async function getOrdersList(req, res, next) {
     try {
-        ordersdetail = await order_db.aggregate([
-            {
-                $match: (req.params.id ? {
-                    "_id": mongoose.Types.ObjectId(req.params.id)
-                } : {})
-            }, {
-                $lookup:
-                {
-                    from: 'tables',
-                    pipeline: [
-                        { $project: { number: 1, _id: 0 } }
-                    ],
-                    localField: 'table_id',
-                    foreignField: '_id',
-                    as: 'table'
-                }
-            },
-            { $project: { 'table.number': 1, table_id: 1, is_paid: 1, total_bill: 1, status: 1, createdAt: 1, updatedAt: 1, }, }
-        ]);
-        // console.log("RESULTTTTTT: ", JSON.stringify(ordersdetail));
-        // console.log("ASDASDSADAS: ", JSON.stringify(ordersdetail[0].table[0].number));
-
-        // ordersdetail = await order_db.findById(req.params.id)
-        // console.log("RESULTTTTTT: ", JSON.stringify(ordersdetail));
-        if (ordersdetail == null) {
-            return res.status(404).json({ message: 'Cant find OrderDetail' })
+        orderList = await order_db.findById(req.params.id)
+        if (orderList == null) {
+            return res.status(404).json({ message: 'Cant find OrderList' })
         }
     } catch (err) {
         return res.status(500).json({ message: err.message })
     }
 
-    res.ordersdetail = ordersdetail;
-    // res.ordersdetail = ordersdetail[0];
+    res.orderList = orderList;
     next()
+}
+
+async function setOrderInTable(newOrder) {
+    console.log("setOrderInTable:", newOrder);
+
+    if (newOrder.status.toString() === "Completed") {
+        table = await table_db.findOneAndUpdate({ _id: newOrder.table_id }, { "order_id": ["-1"] });
+        console.log("COMPLETED : YES");
+        console.log("table after edit", table);
+    } else {
+        table = await table_db.findOneAndUpdate({ "_id": newOrder.table_id, "number": { $ne: "Take Away" } }, { "order_id": [newOrder.daily_number] });
+        console.log("COMPLETED : NO");
+        console.log("table after edit", table);
+    }
+    // return orderCount
 }
 
 module.exports = router;

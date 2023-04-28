@@ -14,10 +14,6 @@ const db = mongoose.connection;
 db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to database!'));
 
-// Server router link
-const router = require('./router/characters-router');
-server.use('/characters', router);
-
 // Genre router link
 const genreRouter = require('./router/genre-router');
 server.use('/genre', genreRouter);

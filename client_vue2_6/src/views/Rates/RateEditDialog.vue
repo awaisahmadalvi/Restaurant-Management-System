@@ -24,6 +24,7 @@
                     :counter="20"
                     label="Rate Title*"
                     required
+                    autofocus
                   ></v-text-field>
                 </v-col>
               </v-row>

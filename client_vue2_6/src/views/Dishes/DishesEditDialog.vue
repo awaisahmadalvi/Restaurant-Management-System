@@ -19,9 +19,10 @@
               <v-row>
                 <v-col cols="12" md="12">
                   <v-text-field
+                    autofocus
                     v-model="dish.name"
                     :rules="dishNameRules"
-                    :counter="20"
+                    :counter="50"
                     label="Dish Title*"
                     required
                   ></v-text-field>
@@ -51,6 +52,18 @@
                     outlined
                     :rules="genreRule"
                   ></v-combobox>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="12">
+                  <v-text-field
+                    autofocus
+                    v-model="dish.number"
+                    :rules="dishNmbrRules(latestNumber)"
+                    label="Dish Number*"
+                    required
+                    type="number"
+                  ></v-text-field>
                 </v-col>
               </v-row>
               <v-btn
@@ -87,10 +100,26 @@ export default {
     addoredit: "Add",
     // dish: {},
     valid: false,
+    latestNumber: 0,
     dishNameRules: [
       (v) => !!v || "Name is required",
-      (v) => (v && v.length <= 20) || "Name must be less than 20",
+      (v) => (v && v.length <= 50) || "Name must be less than 50",
     ],
+    // dishNmbrRules: [
+    //   (v) => !!v || "Number is required",
+    //   (v, ltstnmbr) =>
+    //     (v && v > ltstnmbr) || "Number must be less than ${ltstnmbr}",
+    // ],
+    dishNmbrRules: (limit) => [
+      (val) => val >= limit || `Please use greater or equal to ${limit}`,
+    ],
+
+    // dishNmbrRules: {
+    //   max(maxNum) {
+    //     return (v) =>
+    //       (v || "").length > maxNum || "Number Must be greater than " + maxNum;
+    //   },
+    // },
     dishDescRules: [
       (v) => !!v || "Description is required",
       (v) => (v && v.length <= 200) || "Description must be less than 200",
@@ -168,11 +197,22 @@ export default {
         this.genreList = response.data;
       });
     },
+    getLatestDishNumber() {
+      let uri =
+        "http://" + window.location.hostname + ":3000/dishes/latestnumber";
+      axios.get(uri).then((response) => {
+        console.log("response.data", response.data);
+        this.latestNumber = response.data[0].number;
+        this.dish.number = this.latestNumber + 1;
+        console.log("latestNumber", this.latestNumber);
+      });
+    },
     setDishGenre(dishEdt) {
       if (dishEdt == null) {
         this.select = null;
         return;
       }
+      this.latestNumber = dishEdt.number;
       let uri =
         `http://` +
         window.location.hostname +
@@ -185,6 +225,7 @@ export default {
     },
   },
   created() {
+    this.getLatestDishNumber();
     this.getGenreList();
   },
   watch: {
@@ -194,6 +235,7 @@ export default {
       if (newValue == false) {
         this.addoredit = "Add";
         this.$refs.form.reset();
+        this.getLatestDishNumber();
       } else {
         this.addoredit = "Edit";
       }

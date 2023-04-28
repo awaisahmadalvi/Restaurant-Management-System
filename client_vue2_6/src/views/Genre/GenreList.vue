@@ -1,6 +1,18 @@
 <template>
-  <v-sheet min-height="580px">
-    <h1 class="blue-grey ma-2 text-center white--text">List of Genre</h1>
+  <v-card class="ma-6 pb-1">
+    <v-card-title
+      class="
+        text-h4
+        font-weight-bold
+        title
+        py-2
+        text-center
+        justify-center
+        white--text
+      "
+    >
+      List of Genre
+    </v-card-title>
     <GenreEditDialog
       :genreEdit="editGenre"
       :isEdit="isEdit"
@@ -10,17 +22,31 @@
       :headers="headers"
       :items="genreList"
       sort-by="name"
-      class="elevation-12 ma-6"
+      @click:row="editGenreFunc"
+      :search="search"
+      class="elevation-12 mx-6 my-8"
       ><template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>Genre</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
+          <v-text-field
+            v-show="showSearchField"
+            v-model="search"
+            label="Search"
+            single-line
+            hide-details
+            class="shrink"
+          ></v-text-field>
+          <v-icon @click="showSearchField = !showSearchField"
+            >mdi-magnify</v-icon
+          >
+          <v-divider class="mx-4" inset vertical></v-divider>
           <v-btn
             class="mx-1"
-            @click.stop="addGenreFunc"
+            @click.stop.prevent="addGenreFunc"
             x-small
-            color="blue"
+            color="primary"
             fab
             dark
           >
@@ -55,7 +81,7 @@
                 fab
                 dark
                 x-small
-                @click="setGenreActive(item, false)"
+                @click.stop.prevent="setGenreActive(item, false)"
                 color="success"
                 v-bind="attrs"
                 v-on="on"
@@ -74,7 +100,7 @@
                 fab
                 dark
                 x-small
-                @click="setGenreActive(item, true)"
+                @click.stop.prevent="setGenreActive(item, true)"
                 color="error"
                 v-bind="attrs"
                 v-on="on"
@@ -91,9 +117,9 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="mx-1"
-              @click.stop="editGenreFunc(item)"
+              @click.stop.prevent="editGenreFunc(item)"
               x-small
-              color="grey accent-4"
+              color="neutral"
               fab
               dark
               v-bind="attrs"
@@ -108,9 +134,9 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="mx-1"
-              @click="deleteItem(item._id)"
+              @click.stop.prevent="deleteItem(item._id)"
               x-small
-              color="red accent-4"
+              color="danger"
               fab
               dark
               v-bind="attrs"
@@ -126,7 +152,7 @@
         <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon> -->
       </template>
     </v-data-table>
-  </v-sheet>
+  </v-card>
 </template>
 
 <script>
@@ -137,6 +163,8 @@ export default {
   name: "GenreList",
   components: { GenreEditDialog },
   data: () => ({
+    search: "",
+    showSearchField: false,
     showDelDialog: false,
     deleteid: -1,
     selectedGenre: [],
@@ -163,15 +191,25 @@ export default {
   methods: {
     getGenreList() {
       let uri = "http://" + window.location.hostname + ":3000/genre"; //get only active
-      axios.get(uri).then((response) => {
-        this.genreList = response.data;
-      });
+      axios
+        .get(uri)
+        .then((response) => {
+          this.genreList = response.data;
+        })
+        .catch((error) => {
+          console.error("ERROR getGenreList: ", error);
+        });
     },
     deleteGenre(id) {
       let uri = `http://` + window.location.hostname + `:3000/genre/${id}`;
-      axios.delete(uri, this.genreList).then(() => {
-        this.getGenreList();
-      });
+      axios
+        .delete(uri, this.genreList)
+        .then(() => {
+          this.getGenreList();
+        })
+        .catch((error) => {
+          console.error("ERROR deleteGenre: ", error);
+        });
     },
     setGenreActive(genreTemp, is_active) {
       // console.log(genreTemp._id);
@@ -180,9 +218,14 @@ export default {
       // console.log(genreTemp.is_active);
       let uri =
         `http://` + window.location.hostname + `:3000/genre/${genreTemp._id}`;
-      axios.patch(uri, genreTemp, this.genreList).then(() => {
-        this.getGenreList();
-      });
+      axios
+        .patch(uri, genreTemp, this.genreList)
+        .then(() => {
+          this.getGenreList();
+        })
+        .catch((error) => {
+          console.error("ERROR setGenreActive: ", error);
+        });
     },
 
     editGenreFunc(genreTemp) {

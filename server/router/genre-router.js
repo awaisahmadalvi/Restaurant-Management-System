@@ -5,6 +5,38 @@ const dish_db = require('../model/dishes-model');
 const image_db = require('../model/images-model');
 const ratelist_db = require('../model/ratelist-model');
 
+
+router.get('/stats', async (req, res) => {
+    b = [
+        {
+            "$match": {
+                "is_active": true
+            }
+        },
+        {
+            $facet: {
+                metadata: [{ $count: "total" }],
+            }
+        }];
+
+    console.log(b);
+
+    genre_db.aggregate(b)
+        .then((data) => {
+            console.log("Genre GETSTATS: ", JSON.stringify(data));
+
+            res.send(data);
+
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving tutorials.",
+            });
+        });
+});
+
 // Getting all Genre
 router.get('/', async (req, res) => {
     try {
@@ -12,7 +44,7 @@ router.get('/', async (req, res) => {
         console.log("Genre GET: ", genres);
         res.json(genres);
     } catch (err) {
-        console.log("Genre GET Error: ", err.message);
+        console.error("Genre GET Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -28,7 +60,7 @@ router.post('/', async (req, res) => {
         console.log("Genre POST: ", newGenre);
         res.status(201).json(newGenre);
     } catch (err) {
-        console.log("Genre POST Error: ", err.message);
+        console.error("Genre POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
@@ -66,7 +98,7 @@ router.delete('/:id', getGenreDelete, async (req, res) => {
         console.log("Genre DEL: ", "Deleted Genre and associated items");
         res.json({ message: 'Deleted Genre and associated items' })
     } catch (err) {
-        console.log("Genre DEL Error: ", err.message);
+        console.error("Genre DEL Error: ", err.message);
         res.status(500).json({ message: err.message })
     }
 })
@@ -81,7 +113,7 @@ async function getGenre(req, res, next) {
             return res.status(404).json({ message: 'Cant find Genre' })
         }
     } catch (err) {
-        console.log({ ERRORMSG: err.message });
+        console.error({ ERRORMSG: err.message });
         return res.status(500).json({ message: err.message })
     }
     res.genre = genre;
@@ -105,7 +137,7 @@ async function getGenreDelete(req, res, next) {
             return res.status(404).json({ message: 'Cant find Genre' })
         }
     } catch (err) {
-        console.log({ GENRE_ERRORMSG: err.message });
+        console.error({ GENRE_ERRORMSG: err.message });
         return res.status(500).json({ message: err.message })
     }
     genreID = genre._id.toString();
@@ -121,7 +153,7 @@ async function getGenreDelete(req, res, next) {
             return res.status(404).json({ message: 'Cant find Dish' })
         }
     } catch (err) {
-        console.log({ DISHES_ERRORMSG: err.message });
+        console.error({ DISHES_ERRORMSG: err.message });
         return res.status(500).json({ message: err.message })
     }
     // casting object with _id to ids array of string
@@ -138,7 +170,7 @@ async function getGenreDelete(req, res, next) {
             return res.status(404).json({ message: 'Cant find Image' })
         }
     } catch (err) {
-        console.log({ IMAGE_ERRORMSG: err.message });
+        console.error({ IMAGE_ERRORMSG: err.message });
         return res.status(500).json({ message: err.message })
     }
     // res.images = image;
@@ -154,7 +186,7 @@ async function getGenreDelete(req, res, next) {
             return res.status(404).json({ message: 'Cant find Image' })
         }
     } catch (err) {
-        console.log({ IMAGE_ERRORMSG: err.message });
+        console.error({ IMAGE_ERRORMSG: err.message });
         return res.status(500).json({ message: err.message })
     }
     // res.images = image;

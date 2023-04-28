@@ -25,6 +25,7 @@
                     required
                     type="number"
                     :rules="tableNumberRules"
+                    autofocus
                   ></v-text-field>
                   <!-- 
                     @change="$emit('update:tableEdit', $event.target.value)"
@@ -156,7 +157,7 @@ export default {
         return this.tableEdit == null
           ? {
               number: "0",
-              order_id: "0",
+              order_id: "-1",
             }
           : this.tableEdit;
       },

@@ -1,6 +1,17 @@
 <template>
-  <v-sheet min-height="580px">
-    <h1 class="blue-grey ma-2 text-center white--text">List of Rates</h1>
+  <v-card class="ma-6 pb-1">
+    <v-card-title
+      class="
+        text-h4
+        font-weight-bold
+        title
+        py-2
+        text-center
+        justify-center
+        white--text
+      "
+      >List of {{ dish.name }} Rates
+    </v-card-title>
     <RatesEditDialog
       :rateEdit="editRate"
       :isEdit="isEdit"
@@ -11,17 +22,31 @@
       :headers="headers"
       :items="ratesList"
       sort-by="name"
-      class="elevation-12 ma-6"
+      @click:row="editRateFunc"
+      class="elevation-12 mx-6 my-8"
+      :search="search"
       ><template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>Rates</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
+          <v-text-field
+            v-show="showSearchField"
+            v-model="search"
+            label="Search"
+            single-line
+            hide-details
+            class="shrink"
+          ></v-text-field>
+          <v-icon @click.stop="showSearchField = !showSearchField"
+            >mdi-magnify</v-icon
+          >
+          <v-divider class="mx-4" inset vertical></v-divider>
           <v-btn
             class="mx-1"
             @click.stop="addRateFunc"
             x-small
-            color="blue"
+            color="primary"
             fab
             dark
           >
@@ -35,12 +60,8 @@
               >
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete"
-                  >No</v-btn
-                >
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                  >Yes</v-btn
-                >
+                <v-btn color="primary" text @click="closeDelete">No</v-btn>
+                <v-btn color="error" text @click="deleteItemConfirm">Yes</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -56,7 +77,7 @@
                 fab
                 dark
                 x-small
-                @click="setRateActive(item, false)"
+                @click.stop="setRateActive(item, false)"
                 color="success"
                 v-bind="attrs"
                 v-on="on"
@@ -75,7 +96,7 @@
                 fab
                 dark
                 x-small
-                @click="setRateActive(item, true)"
+                @click.stop="setRateActive(item, true)"
                 color="error"
                 v-bind="attrs"
                 v-on="on"
@@ -94,7 +115,7 @@
               class="mx-1"
               @click.stop="editRateFunc(item)"
               x-small
-              color="grey accent-4"
+              color="neutral"
               fab
               dark
               v-bind="attrs"
@@ -109,9 +130,9 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="mx-1"
-              @click="deleteItem(item._id)"
+              @click.stop="deleteItem(item._id)"
               x-small
-              color="red accent-4"
+              color="danger"
               fab
               dark
               v-bind="attrs"
@@ -124,7 +145,7 @@
         </v-tooltip>
       </template>
     </v-data-table>
-  </v-sheet>
+  </v-card>
 </template>
 
 <script>
@@ -136,8 +157,11 @@ export default {
 
   components: { RatesEditDialog },
   data: () => ({
+    search: "",
+    showSearchField: false,
     showDelDialog: false,
     dishId: null,
+    dish: [],
     deleteid: -1,
     selectedGenre: [],
     ratesList: [],
@@ -169,23 +193,50 @@ export default {
         `http://` +
         window.location.hostname +
         `:3000/ratelist/dishid/${this.dishId}`;
-      axios.get(uri).then((response) => {
-        this.ratesList = response.data;
-      });
+      axios
+        .get(uri)
+        .then((response) => {
+          this.ratesList = response.data;
+        })
+        .catch((error) => {
+          console.error("ERROR getRatesList: ", error);
+        });
     },
     deleteRates(id) {
       let uri = `http://` + window.location.hostname + `:3000/ratelist/${id}`;
-      axios.delete(uri, this.ratesList).then(() => {
-        this.getRatesList();
-      });
+      axios
+        .delete(uri, this.ratesList)
+        .then(() => {
+          this.getRatesList();
+        })
+        .catch((error) => {
+          console.error("ERROR deleteRates: ", error);
+        });
     },
     setRateActive(rateTemp, is_active) {
       rateTemp.is_active = is_active;
       let uri =
         `http://` + window.location.hostname + `:3000/ratelist/${rateTemp._id}`;
-      axios.patch(uri, rateTemp, this.ratesList).then(() => {
-        this.getRatesList();
-      });
+      axios
+        .patch(uri, rateTemp, this.ratesList)
+        .then(() => {
+          this.getRatesList();
+        })
+        .catch((error) => {
+          console.error("ERROR setRateActive: ", error);
+        });
+    },
+    getDish() {
+      let uri =
+        `http://` + window.location.hostname + `:3000/dishes/${this.dishId}`;
+      axios
+        .get(uri, this.dish)
+        .then((response) => {
+          this.dish = response.data;
+        })
+        .catch((error) => {
+          console.error("ERROR getDish: ", error);
+        });
     },
 
     editRateFunc(rateTemp) {
@@ -227,6 +278,7 @@ export default {
   created() {
     this.dishId = this.$route.params.id;
     this.getRatesList();
+    this.getDish();
   },
   watch: {
     showDelDialog(val) {

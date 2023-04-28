@@ -4,11 +4,11 @@ import HomeView from '../views/HomeView.vue'
 import TableList from '../views/Tables/TableList.vue'
 import GenreList from '../views/Genre/GenreList.vue'
 import DishesList from '../views/Dishes/DishesList.vue'
-import DataTable from '../views/DataTableApp.vue'
-import TestView from '../views/TestVue.vue'
 import ImageList from '../views/Images/ImageList.vue'
 import RateList from '../views/Rates/RateList.vue'
 import OrderList from '../views/Orders/OrdersList.vue'
+import MenuGrid from '../views/Menu/MenuGrid.vue'
+import OrdersReport from '../views/Reports/OrdersReport.vue'
 
 
 
@@ -53,15 +53,16 @@ const routes = [
     component: OrderList,
   },
   {
-    path: '/datatable',
-    name: 'Data Table',
-    component: DataTable
+    path: '/menugrid/:id?',
+    name: 'MenuGrid',
+    component: MenuGrid
   },
   {
-    path: '/test',
-    name: 'TestView',
-    component: TestView
+    path: '/ordersreport/',
+    name: 'OrdersReport',
+    component: OrdersReport,
   },
+
 ]
 
 const router = new VueRouter({

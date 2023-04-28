@@ -1,7 +1,6 @@
 {
-  "name": "client_vue2_6",
+  "name": "justa_highland",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -9,11 +8,23 @@
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
+    "assert": "^2.0.0",
     "core-js": "^3.8.3",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
+    "moment": "^2.29.3",
+    "nodemon": "^2.0.20",
     "roboto-fontface": "*",
+    "stream": "^0.0.2",
+    "stream-http": "^3.2.0",
+    "tzdata": "^1.0.30",
+    "url": "^0.11.0",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1",
-    "vuetify": "^2.6.0"
+    "vuetify": "^2.6.0",
+    "webpack": "^5.73.0",
+    "xhr2-cookies": "^1.1.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -22,7 +33,7 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
-    "axios": "^0.18.0",
+    "axios": "^0.27.2",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "sass": "~1.32.0",

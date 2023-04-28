@@ -2,9 +2,9 @@
   <v-row justify="end">
     <v-dialog v-model="dialog" width="500">
       <template v-slot:activator="{ on, attrs }">
-        <v-btn class="mx-6 my-2" color="primary" v-bind="attrs" v-on="on"
-          >Add Images</v-btn
-        >
+        <v-btn v-bind="attrs" v-on="on" small color="primary" fab dark>
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
       </template>
       <v-card>
         <v-card-title>

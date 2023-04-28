@@ -4,12 +4,19 @@ const table_db = require('../model/tables-model');
 
 // Getting all tables
 router.get('/', async (req, res) => {
+
+    const { is_empty } = req.query;
+
     try {
-        const tabels = await table_db.find();
+        if (is_empty)
+            tabels = await table_db.find({ order_id: '-1' });
+        else
+            tabels = await table_db.find({});
+
         console.log("Tables GET: ", tabels);
         res.json(tabels);
     } catch (err) {
-        console.log("Tables GET Error: ", err.message);
+        console.error("Tables GET Error: ", err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -25,7 +32,7 @@ router.post('/', async (req, res) => {
         console.log("Tables POST: ", newTable);
         res.status(201).json(newTable);
     } catch (err) {
-        console.log("Tables POST Error: ", err.message);
+        console.error("Tables POST Error: ", err.message);
         res.status(400).json({ message: err.message });
     }
 });
@@ -49,7 +56,7 @@ router.patch('/:id', getTables, async (req, res) => {
         const updatedTable = await res.tables.save()
         console.log("Tables PATCH: ", updatedTable);
         res.json(updatedTable)
-    } catch {
+    } catch (err) {
         console.log("Tables PATCH Error: ", err.message);
         res.status(400).json({ message: err.message })
     }
@@ -63,7 +70,7 @@ router.delete('/:id', getTables, async (req, res) => {
         console.log("Tables DEL: ", "Deleted This table");
         res.json({ message: 'Deleted This table' })
     } catch (err) {
-        console.log("Tables DEL Error: ", res.json);
+        console.error("Tables DEL Error: ", res.json);
         res.status(500).json({ message: err.message })
     }
 })
@@ -78,7 +85,7 @@ async function getTables(req, res, next) {
             return res.status(404).json({ message: 'Cant find table' })
         }
     } catch (err) {
-        console.log({ message: err.message });
+        console.error({ message: err.message });
         return res.status(500).json({ message: err.message })
     }
 
